@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="using:WallopSceneEditor.Views"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             x:Class="WallopSceneEditor.Views.StartupView">
+
+	<DockPanel>
+		<TextBlock DockPanel.Dock="Top" TextAlignment="Center" FontSize="24" TextWrapping="Wrap" Text="Welcome to the Wallop Scene Editor!"></TextBlock>
+		
+		<Separator Margin="8" Height="2" DockPanel.Dock="Top" CornerRadius="0">
+			<Separator.Background>
+				<RadialGradientBrush>
+					<GradientStops>
+						<GradientStop Color="#3000" Offset="0"></GradientStop>
+						<GradientStop Color="#3222" Offset="0.9"></GradientStop>
+					</GradientStops>
+				</RadialGradientBrush>
+			</Separator.Background>
+		</Separator>
+		
+		<DockPanel Margin="8" HorizontalAlignment="Stretch">
+			<TextBlock DockPanel.Dock="Top" Text="Recent files"></TextBlock>
+
+			<ListBox Margin="0,8,0,0" Items="{Binding RecentItems}" SelectionChanged="OnSelectedItemChanged" MinWidth="250">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<!--<StackPanel Orientation="Horizontal">
+							<Spinner IsVisible="{Binding ShowSpinner}"></Spinner>
+						</StackPanel>-->
+						<TextBlock Text="{Binding FilePath}"></TextBlock>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</DockPanel>
+
+
+		<DockPanel Margin="8" HorizontalAlignment="Stretch">
+			<StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+
+				<TextBlock Margin="0,4,0,0" Text="Scene name"></TextBlock>
+				<TextBox Margin="0,4,0,4" Text="{Binding SceneName}"></TextBox>
+
+				<TextBlock Margin="0,4,0,0" Text="File name"></TextBlock>
+				<TextBox Margin="0,4,0,4" Text="{Binding SceneFileName, Mode=TwoWay}"></TextBox>
+
+				<TextBlock Margin="0,4,0,0" Text="Scene file"></TextBlock>
+				<v:FilePicker HorizontalAlignment="Stretch" Margin="0,4,0,4" Watermark="Scene file" SelectedFile="{Binding SelectedFile, Mode=TwoWay}" Filter="Json files;json|All files;*" FileSelectedCommand="{Binding FileSelected}"></v:FilePicker>
+			</StackPanel>
+
+			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="{Binding ButtonText}" IsEnabled="{Binding ButtonEnabled}"></Button>
+		</DockPanel>
+
+		
+		
+	</DockPanel>
+	
+</UserControl>

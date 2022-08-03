@@ -1,17 +1,22 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:WallopSceneEditor.ViewModels"
+		xmlns:app="clr-namespace:WallopSceneEditor"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:v="using:WallopSceneEditor.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		xmlns:rxui="clr-namespace:Avalonia.ReactiveUI;assembly=Avalonia.ReactiveUI"
         x:Class="WallopSceneEditor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="WallopSceneEditor">
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+	<rxui:RoutedViewHost Router="{Binding Router}">
+		<rxui:RoutedViewHost.DefaultContent>
+			<TextBlock Text="Error loading view."></TextBlock>
+		</rxui:RoutedViewHost.DefaultContent>
+		<rxui:RoutedViewHost.ViewLocator>
+			<app:AppViewLocator />
+		</rxui:RoutedViewHost.ViewLocator>
+	</rxui:RoutedViewHost>
 </Window>

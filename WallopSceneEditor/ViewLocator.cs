@@ -14,7 +14,9 @@ namespace WallopSceneEditor
 
             if (type != null)
             {
-                return (Control)Activator.CreateInstance(type)!;
+                Control control = (Control)Activator.CreateInstance(type)!;
+                control.DataContext = data;
+                return control;
             }
             else
             {
