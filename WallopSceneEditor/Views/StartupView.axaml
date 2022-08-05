@@ -47,10 +47,18 @@
 
 				<TextBlock Margin="0,4,0,0" Text="Scene file"></TextBlock>
 				<v:FilePicker HorizontalAlignment="Stretch" Margin="0,4,0,4" Watermark="Scene file" SelectedFile="{Binding SelectedFile, Mode=TwoWay}" Filter="Json files;json|All files;*" FileSelectedCommand="{Binding FileSelected}"></v:FilePicker>
+
+
+				<TextBlock Margin="0,4,0,0" Text="Use currently loaded scene"></TextBlock>
+				<ComboBox Margin="0,4,0,4" HorizontalAlignment="Stretch">
+					<ComboBoxItem>Wallop (process ID)</ComboBoxItem>
+					<ComboBoxItem>Wallop (process ID)</ComboBoxItem>
+					<ComboBoxItem>Wallop (process ID)</ComboBoxItem>
+				</ComboBox>
 			</StackPanel>
 
 			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="Settings" Command="{Binding ShowSettingsCommand}"></Button>
-			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="{Binding ButtonText}" IsEnabled="{Binding ButtonEnabled}"></Button>
+			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="{Binding ButtonText}" IsEnabled="{Binding ButtonEnabled}" Command="{Binding BeginEditCommand}"></Button>
 		</DockPanel>
 
 		

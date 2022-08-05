@@ -11,6 +11,14 @@ namespace WallopSceneEditor.Services
 {
     internal class JsonSceneService : ISceneService
     {
+        public StoredScene CreateScene(string name, string filePath)
+        {
+            var storedScene = new StoredScene();
+            storedScene.ConfigFile = filePath;
+            storedScene.Name = name;
+            return storedScene;
+        }
+
         public async Task<StoredScene> LoadSceneAsync(string filePath)
         {
             using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -20,6 +28,7 @@ namespace WallopSceneEditor.Services
                 {
                     throw new FileLoadException("Failed to load scene.");
                 }
+                result.ConfigFile = filePath;
                 return result;
             }
         }

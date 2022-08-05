@@ -12,5 +12,8 @@ namespace WallopSceneEditor.Models
         public string SceneDirectory { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scenes");
         public string PackageDirectory { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "modules");
         public string PluginDirectory { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
+        public string EnginePath { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wallop.exe");
+
+        public EngineConfigModel EngineConfig { get; set; } = new EngineConfigModel();
     }
 }

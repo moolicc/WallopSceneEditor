@@ -39,6 +39,28 @@
 						<TextBox Margin="0,0,83,0" Watermark="Select directory" Text="{Binding PluginFolder}"></TextBox>
 						<Button Margin="4,0,0,0" Width="75" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Command="{Binding PluginsFolderCommand}">Browse</Button>
 					</Panel>
+					
+					<TextBlock Margin="0,8,0,4" Text="Engine executable"></TextBlock>
+					<Panel>
+						<TextBox Margin="0,0,83,0" Watermark="Engine" Text="{Binding EnginePath}"></TextBox>
+						<Button Margin="4,0,0,0" Width="75" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Command="{Binding EngineFileCommand}">Browse</Button>
+					</Panel>
+				</StackPanel>
+			</TabItem>
+			<TabItem>
+				<TabItem.Header>
+					<TextBlock VerticalAlignment="Center">Engine</TextBlock>
+				</TabItem.Header>
+
+				<StackPanel>
+					<TextBlock Margin="0,4,0,4" Text="Instance name"></TextBlock>
+					<TextBox Margin="0,0,0,4" Text="{Binding EngineInstance}"></TextBox>
+
+					<TextBlock Margin="0,4,0,4" Text="Width / Height"></TextBlock>
+					<Grid Margin="0,0,0,4" ColumnDefinitions="*,*">
+						<NumericUpDown Margin="0,0,4,0" Grid.Column="0" Minimum="1" Value="{Binding EngineWidth}"></NumericUpDown>
+						<NumericUpDown Margin="4,0,0,0" Grid.Column="1" Minimum="1" Value="{Binding EngineHeight}"></NumericUpDown>
+					</Grid>
 				</StackPanel>
 			</TabItem>
 		</TabControl>

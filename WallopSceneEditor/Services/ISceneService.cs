@@ -10,5 +10,7 @@ namespace WallopSceneEditor.Services
     internal interface ISceneService
     {
         Task<StoredScene> LoadSceneAsync(string filePath);
+
+        StoredScene CreateScene(string name, string filePath);
     }
 }

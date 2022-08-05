@@ -103,7 +103,7 @@ namespace WallopSceneEditor.ViewModels
         private RecentFileViewModel[] _recentFiles = new[] { RecentFileViewModel.Empty };
 
 
-        public ICommand CreateSceneCommand { get; }
+        public ICommand BeginEditCommand { get; }
         public ICommand ShowSettingsCommand { get; }
 
 
@@ -121,9 +121,18 @@ namespace WallopSceneEditor.ViewModels
             _windowService = windowService;
             _sceneService = sceneService;
 
-            CreateSceneCommand = ReactiveCommand.Create(async () =>
+            BeginEditCommand = ReactiveCommand.Create(() =>
             {
+                if(SceneName == null)
+                {
+                    // TODO: Show error
+                    // Failed.
+                    return;
+                }
+                var vm = _windowService.ResolveView_Inject<SceneEditViewModel>();
+                vm.Scene = _sceneService.CreateScene(SceneName, SelectedFile);
 
+                _windowService.SwitchView("main", vm);
             });
 
             ShowSettingsCommand = ReactiveCommand.Create(async () =>
@@ -182,7 +191,7 @@ namespace WallopSceneEditor.ViewModels
                     var recent = (await _settingsService.GetRecentFilesAsync()).RecentFiles.ToArray();
                     var results = new RecentFileViewModel[recent.Length];
 
-                    for (int i = 0; i < recent.Length; i++)
+                    for (int i = 0; i < results.Length; i++)
                     {
                         try
                         {
