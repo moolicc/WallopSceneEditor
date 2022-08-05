@@ -28,6 +28,8 @@
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\wallop\src\Wallop\Wallop.csproj" />
+    <ProjectReference Include="..\wallop\src\Wallop.IPC\Wallop.IPC.csproj" />
+    <ProjectReference Include="..\wallop\src\Wallop.Shared.Messaging\Wallop.Shared.Messaging.csproj" />
+    <ProjectReference Include="..\wallop\src\Wallop.Shared\Wallop.Shared.csproj" />
   </ItemGroup>
 </Project>

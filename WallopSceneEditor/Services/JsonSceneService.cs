@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Wallop.SceneManagement;
+using Wallop.Shared.Modules;
+using Wallop.Shared.ECS;
 
 namespace WallopSceneEditor.Services
 {
