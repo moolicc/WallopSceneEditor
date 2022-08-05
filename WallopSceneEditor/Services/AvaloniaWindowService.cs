@@ -15,19 +15,21 @@ namespace WallopSceneEditor.Services
     {
         public IClassicDesktopStyleApplicationLifetime Desktop { get; private set; }
         public Window MainWindow { get; init; }
+        public Dictionary<string, IScreen> Screens { get; init; }
 
-        private MainWindowViewModel _mainWindowVm;
-        private IScreen _mainWindowScreen;
 
         private IDependencyInjection _dependencyInjection;
+        private Stack<Window> _dialogStack;
 
         public AvaloniaWindowService(IClassicDesktopStyleApplicationLifetime desktop, IDependencyInjection dependencyInjection)
         {
             Desktop = desktop;
-            MainWindow = Desktop.MainWindow;
-            _mainWindowVm = (MainWindowViewModel)MainWindow.DataContext!;
-            _mainWindowScreen = _mainWindowVm;
+            MainWindow = desktop.MainWindow;
+            Screens = new Dictionary<string, IScreen>();
             _dependencyInjection = dependencyInjection;
+
+            _dialogStack = new Stack<Window>();
+            _dialogStack.Push(MainWindow);
         }
 
         public T ResolveView_Inject<T>() where T : ViewModelBase
@@ -53,73 +55,102 @@ namespace WallopSceneEditor.Services
             return viewModel;
         }
 
-        public T SwitchView<T>() where T : ViewModelBase
+        public T SwitchView<T>(string screen) where T : ViewModelBase
         {
             var view = ResolveView_Inject<T>();
-            return SwitchView(view);
+            return SwitchView(screen, view);
         }
 
-        public T SwitchView<T>(T viewModel) where T : ViewModelBase
+        public T SwitchView<T>(string screen, T viewModel) where T : ViewModelBase
         {
+            var targetScreen = Screens[screen];
+
             if(viewModel.HostScreen == null)
             {
-                viewModel.HostScreen = _mainWindowScreen;
+                viewModel.HostScreen = targetScreen;
             }
-            _mainWindowVm.Router.Navigate.Execute(viewModel);
+
+            targetScreen.Router.Navigate.Execute(viewModel);
             return viewModel;
         }
 
-        public async Task ShowFileDialogAsync<TDialog>(Action<TDialog> with)
+        public async Task<string?> ShowFileDialogAsync<TDialog>(Action<TDialog>? with = null)
         {
-            if (typeof(TDialog).IsAssignableFrom(typeof(Avalonia.Controls.SaveFileDialog)))
+            if (typeof(TDialog).IsAssignableFrom(typeof(SaveFileDialog)))
             {
                 var dialog = Activator.CreateInstance<TDialog>();
-                var sysDialog = dialog as Avalonia.Controls.SaveFileDialog;
+                var sysDialog = dialog as SaveFileDialog;
 
                 if(sysDialog == null)
                 {
                     throw new InvalidOperationException();
                 }
 
-                with(dialog);
+                with?.Invoke(dialog);
 
-                await sysDialog.ShowAsync(MainWindow);
+                return await sysDialog.ShowAsync(_dialogStack.Peek());
             }
-            else if (typeof(TDialog).IsAssignableFrom(typeof(Avalonia.Controls.OpenFileDialog)))
+            else if (typeof(TDialog).IsAssignableFrom(typeof(OpenFileDialog)))
             {
                 var dialog = Activator.CreateInstance<TDialog>();
-                var sysDialog = dialog as Avalonia.Controls.OpenFileDialog;
+                var sysDialog = dialog as OpenFileDialog;
 
                 if (sysDialog == null)
                 {
                     throw new InvalidOperationException();
                 }
 
-                with(dialog);
+                with?.Invoke(dialog);
 
-                await sysDialog.ShowAsync(MainWindow);
+                return (await sysDialog.ShowAsync(_dialogStack.Peek()))?[0];
             }
-            else if (typeof(TDialog).IsAssignableFrom(typeof(Avalonia.Controls.OpenFolderDialog)))
+            else if (typeof(TDialog).IsAssignableFrom(typeof(OpenFolderDialog)))
             {
                 var dialog = Activator.CreateInstance<TDialog>();
-                var sysDialog = dialog as Avalonia.Controls.OpenFolderDialog;
+                var sysDialog = dialog as OpenFolderDialog;
 
                 if (sysDialog == null)
                 {
                     throw new InvalidOperationException();
                 }
 
-                with(dialog);
+                with?.Invoke(dialog);
 
-                await sysDialog.ShowAsync(MainWindow);
+                return await sysDialog.ShowAsync(_dialogStack.Peek());
             }
 
-            throw new InvalidCastException($"Invalid dialog type. Valid types are: {nameof(Avalonia.Controls.SaveFileDialog)}, {nameof(Avalonia.Controls.OpenFileDialog)}, and {nameof(Avalonia.Controls.OpenFolderDialog)}");
+            throw new InvalidCastException($"Invalid dialog type. Valid types are: {nameof(Avalonia.Controls.SaveFileDialog)}, {nameof(OpenFileDialog)}, and {nameof(Avalonia.Controls.OpenFolderDialog)}");
         }
 
         public void ScheduleOnUIThread(Action action)
         {
             Dispatcher.UIThread.Post(action, DispatcherPriority.Background);
+        }
+
+        public void AddScreen<TScreen>(string screenName, TScreen screen) where TScreen : IScreen
+        {
+            Screens.Add(screenName, screen);
+        }
+
+        public IScreen GetScreen(string screenName)
+        {
+            return Screens[screenName];
+        }
+
+        public async Task<TResult> ShowDialogAsync<TDialog, TResult>(TDialog dialog)
+        {
+            if(dialog is Window win)
+            {
+                var parent = _dialogStack.Peek();
+
+                _dialogStack.Push(win);
+                var result = await win.ShowDialog<TResult>(parent);
+
+                _dialogStack.Pop();
+
+                return result;
+            }
+            throw new InvalidCastException("Invalid type specified.");
         }
     }
 }

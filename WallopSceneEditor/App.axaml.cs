@@ -4,6 +4,8 @@ using Avalonia.Markup.Xaml;
 using WallopSceneEditor.Services;
 using WallopSceneEditor.ViewModels;
 using WallopSceneEditor.Views;
+using System;
+using System.Diagnostics;
 
 namespace WallopSceneEditor
 {
@@ -22,16 +24,23 @@ namespace WallopSceneEditor
                 BuildServices(di);
 
 
-                desktop.MainWindow = new MainWindow()
-                {
-                    DataContext = new MainWindowViewModel()
-                };
 
+                var mainWindow = new MainWindow();
+                mainWindow.ViewModel = new MainWindowViewModel();
+
+                desktop.MainWindow = mainWindow;
                 var windowService = new AvaloniaWindowService(desktop, di);
+
+
+                windowService.AddScreen("main", mainWindow.ViewModel);
+
                 di.Add<IWindowService, AvaloniaWindowService>(windowService);
-                windowService.SwitchView<StartupViewModel>();
+                windowService.SwitchView<StartupViewModel>("main");
             }
 
+            var now = DateTime.Now.Ticks;
+
+            Debug.WriteLine("App started in: {0}", TimeSpan.FromTicks(now - Program.StartTime));
             base.OnFrameworkInitializationCompleted();
         }
 

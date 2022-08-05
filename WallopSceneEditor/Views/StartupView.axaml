@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -26,10 +26,10 @@
 			<ListBox Margin="0,8,0,0" Items="{Binding RecentItems}" SelectionChanged="OnSelectedItemChanged" MinWidth="250">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<!--<StackPanel Orientation="Horizontal">
-							<Spinner IsVisible="{Binding ShowSpinner}"></Spinner>
-						</StackPanel>-->
-						<TextBlock Text="{Binding FilePath}"></TextBlock>
+						<StackPanel Orientation="Horizontal" ToolTip.Tip="{Binding Message}">
+							<TextBlock IsVisible="{Binding HasErrors}" Text="⚠️  " Foreground="Red"></TextBlock>
+							<TextBlock Text="{Binding FilePath}"></TextBlock>
+						</StackPanel>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
@@ -49,6 +49,7 @@
 				<v:FilePicker HorizontalAlignment="Stretch" Margin="0,4,0,4" Watermark="Scene file" SelectedFile="{Binding SelectedFile, Mode=TwoWay}" Filter="Json files;json|All files;*" FileSelectedCommand="{Binding FileSelected}"></v:FilePicker>
 			</StackPanel>
 
+			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="Settings" Command="{Binding ShowSettingsCommand}"></Button>
 			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="{Binding ButtonText}" IsEnabled="{Binding ButtonEnabled}"></Button>
 		</DockPanel>
 

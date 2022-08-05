@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -19,12 +20,23 @@ namespace WallopSceneEditor.ViewModels
 
         public string FilePath { get; set; }
         public string SceneName { get; set; }
-
+        public string Message { get; set; }
+        public bool HasErrors { get; set; }
 
         public RecentFileViewModel(string filePath, string sceneName)
         {
             FilePath = filePath;
             SceneName = sceneName;
+            Message = sceneName;
+            HasErrors = false;
+        }
+
+        public RecentFileViewModel(string filePath, string errorMessage, bool hasErrors)
+        {
+            FilePath = filePath;
+            SceneName = "";
+            Message = errorMessage;
+            HasErrors = hasErrors;
         }
     }
 
@@ -91,11 +103,16 @@ namespace WallopSceneEditor.ViewModels
         private RecentFileViewModel[] _recentFiles = new[] { RecentFileViewModel.Empty };
 
 
+        public ICommand CreateSceneCommand { get; }
+        public ICommand ShowSettingsCommand { get; }
+
+
         private bool _updateSelectedByFileName = true;
 
         private ISettingsService _settingsService;
         private IWindowService _windowService;
         private ISceneService _sceneService;
+        private bool _loadingRecents;
 
         internal StartupViewModel(ISettingsService settingsService, IWindowService windowService, ISceneService sceneService)
         {
@@ -103,6 +120,20 @@ namespace WallopSceneEditor.ViewModels
             _settingsService = settingsService;
             _windowService = windowService;
             _sceneService = sceneService;
+
+            CreateSceneCommand = ReactiveCommand.Create(async () =>
+            {
+
+            });
+
+            ShowSettingsCommand = ReactiveCommand.Create(async () =>
+            {
+                var vm = _windowService.ResolveView_Inject<SettingsViewModel>();
+                var dialog = new Views.SettingsView();
+                dialog.ViewModel = vm;
+
+                var result = await dialog.ShowDialog<bool?>((_windowService as AvaloniaWindowService)!.MainWindow);
+            });
         }
 
         public void FileSelected(Views.FilePicker? picker)
@@ -129,7 +160,7 @@ namespace WallopSceneEditor.ViewModels
 
         public void OnListSelectedItem(RecentFileViewModel? item)
         {
-            if(item != null && item != RecentFileViewModel.Empty)
+            if(item != null && item != RecentFileViewModel.Empty && !item.HasErrors)
             {
                 SceneName = item.SceneName;
                 SelectedFile = item.FilePath;
@@ -138,19 +169,44 @@ namespace WallopSceneEditor.ViewModels
 
         protected override void OnActivate()
         {
-            _windowService.ScheduleOnUIThread(async () =>
+            LoadRecentFiles();
+        }
+
+        private void LoadRecentFiles()
+        {
+            if (!_loadingRecents)
             {
-                var recent = (await _settingsService.GetRecentFilesAsync()).RecentFiles.ToArray();
-                var results = new RecentFileViewModel[recent.Length];
-
-                for (int i = 0; i < recent.Length; i++)
+                _loadingRecents = true;
+                _windowService.ScheduleOnUIThread(async () =>
                 {
-                    var scene = _sceneService.LoadScene(recent[i], "");
-                    results[i] = new RecentFileViewModel(recent[i], scene.Name);
-                }
+                    var recent = (await _settingsService.GetRecentFilesAsync()).RecentFiles.ToArray();
+                    var results = new RecentFileViewModel[recent.Length];
 
-                RecentItems = results;
-            });
+                    for (int i = 0; i < recent.Length; i++)
+                    {
+                        try
+                        {
+                            var scene = await _sceneService.LoadSceneAsync(recent[i]);
+                            results[i] = new RecentFileViewModel(recent[i], scene.Name);
+                        }
+                        catch (FileNotFoundException ex)
+                        {
+                            results[i] = new RecentFileViewModel(recent[i], $"Could not locate file '{ex.FileName}'.", true);
+                        }
+                        catch (System.Text.Json.JsonException ex)
+                        {
+                            results[i] = new RecentFileViewModel(recent[i], $"Json format is invalid! Line: {ex.LineNumber}", true);
+                        }
+                        catch (Exception ex)
+                        {
+                            results[i] = new RecentFileViewModel(recent[i], ex.Message, true);
+                        }
+                    }
+
+                    RecentItems = results;
+                    _loadingRecents = false;
+                });
+            }
         }
 
         private void SetSelectedFileByName()
@@ -184,5 +240,6 @@ namespace WallopSceneEditor.ViewModels
             }
             SelectedFile = Path.Combine(directory, SceneFileName ?? filename);
         }
+
     }
 }

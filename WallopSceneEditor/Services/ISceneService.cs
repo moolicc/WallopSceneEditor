@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wallop.SceneManagement;
 
 namespace WallopSceneEditor.Services
 {
     internal interface ISceneService
     {
-        Models.Scene LoadScene(string filePath, params string[] fields);
+        Task<StoredScene> LoadSceneAsync(string filePath);
     }
 }

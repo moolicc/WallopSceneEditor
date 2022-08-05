@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WallopSceneEditor.Models;
 
 namespace WallopSceneEditor.Services
 {
-    internal interface ISettingsService
+    public interface ISettingsService
     {
-        Task<Models.AppSettingsModel> GetSettingsAsync();
+        Task<AppSettingsModel> GetSettingsAsync();
 
-        Task<Models.RecentFilesModel> GetRecentFilesAsync();
+        Task<RecentFilesModel> GetRecentFilesAsync();
+
+        Task SaveSettingsAsync(AppSettingsModel model);
+
+        Task ClearRecentFilesAsync();
+        Task AddRecentFileAsync(string file);
     }
 }

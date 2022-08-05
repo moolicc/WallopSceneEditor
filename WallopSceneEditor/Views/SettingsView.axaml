@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="clr-namespace:WallopSceneEditor.Views"
+			 xmlns:vm="clr-namespace:WallopSceneEditor.ViewModels"
+			 x:Class="WallopSceneEditor.Views.SettingsView"
+             mc:Ignorable="d" Width="500" Height="400"
+			 CanResize="False">
+
+	<DockPanel>
+		<TabControl DockPanel.Dock="Top">
+			<TabItem VerticalContentAlignment="Center">
+				<TabItem.Header>
+					<TextBlock VerticalAlignment="Center">General</TextBlock>
+				</TabItem.Header>
+
+			</TabItem>
+			<TabItem>
+				<TabItem.Header>
+					<TextBlock VerticalAlignment="Center">Paths</TextBlock>
+				</TabItem.Header>
+
+				<StackPanel>
+					<TextBlock Margin="0,4,0,4" Text="Scene directory"></TextBlock>
+					<Panel>
+						<TextBox Margin="0,0,83,0" Watermark="Select directory" Text="{Binding SceneFolder}"></TextBox>
+						<Button Margin="4,0,0,0" Width="75" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Command="{Binding SceneFolderCommand}">Browse</Button>
+					</Panel>
+
+					<TextBlock Margin="0,8,0,4" Text="Module directory"></TextBlock>
+					<Panel>
+						<TextBox Margin="0,0,83,0" Watermark="Select directory" Text="{Binding ModuleFolder}"></TextBox>
+						<Button Margin="4,0,0,0" Width="75" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Command="{Binding ModulesFolderCommand}">Browse</Button>
+					</Panel>
+
+					<TextBlock Margin="0,8,0,4" Text="Plugin directory"></TextBlock>
+					<Panel>
+						<TextBox Margin="0,0,83,0" Watermark="Select directory" Text="{Binding PluginFolder}"></TextBox>
+						<Button Margin="4,0,0,0" Width="75" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Command="{Binding PluginsFolderCommand}">Browse</Button>
+					</Panel>
+				</StackPanel>
+			</TabItem>
+		</TabControl>
+
+		<StackPanel DockPanel.Dock="Bottom" Margin="8" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+			<Button Name="OkButton" Margin="0,0,4,0" Width="75" IsDefault="True" Command="{Binding OkCommand}">
+				<TextBlock Text="Ok" TextAlignment="Center"></TextBlock>
+			</Button>
+			<Button Name="CancelButton" Margin="4,0,0,0" Width="75" IsCancel="True" Command="{Binding CancelCommand}">
+				<TextBlock Text="Cancel" TextAlignment="Center"></TextBlock>
+			</Button>
+		</StackPanel>
+	</DockPanel>
+</Window>

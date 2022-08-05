@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WallopSceneEditor", "WallopSceneEditor\WallopSceneEditor.csproj", "{1C3769DF-7695-49AF-9FB0-2E3B4679D8A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WallopSceneEditor", "WallopSceneEditor\WallopSceneEditor.csproj", "{1C3769DF-7695-49AF-9FB0-2E3B4679D8A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wallop", "wallop\src\Wallop\Wallop.csproj", "{79D88279-087C-424C-B0F0-E2B2DA938A69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Submodules", "Submodules", "{059C13D6-F900-478B-9480-ADEEEA8461C6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cog", "wallop\src\Cog\Cog\Cog.csproj", "{EE8F89DA-225F-4F15-95A6-C2C47E760915}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginPantry", "wallop\src\PluginPantry\PluginPantry\PluginPantry.csproj", "{FBE497BA-993C-4C89-A76A-689C43B7E1B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wallop.DSLExtension", "wallop\src\Wallop.DSLExtension\Wallop.DSLExtension.csproj", "{756E30CA-3A4B-4771-936C-5A09C33E6070}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wallop.IPC", "wallop\src\Wallop.IPC\Wallop.IPC.csproj", "{436526F1-35CE-433D-8F16-AAA8FB2C0C26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +27,36 @@ Global
 		{1C3769DF-7695-49AF-9FB0-2E3B4679D8A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C3769DF-7695-49AF-9FB0-2E3B4679D8A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C3769DF-7695-49AF-9FB0-2E3B4679D8A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79D88279-087C-424C-B0F0-E2B2DA938A69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79D88279-087C-424C-B0F0-E2B2DA938A69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79D88279-087C-424C-B0F0-E2B2DA938A69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79D88279-087C-424C-B0F0-E2B2DA938A69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE8F89DA-225F-4F15-95A6-C2C47E760915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE8F89DA-225F-4F15-95A6-C2C47E760915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE8F89DA-225F-4F15-95A6-C2C47E760915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE8F89DA-225F-4F15-95A6-C2C47E760915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBE497BA-993C-4C89-A76A-689C43B7E1B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBE497BA-993C-4C89-A76A-689C43B7E1B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBE497BA-993C-4C89-A76A-689C43B7E1B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBE497BA-993C-4C89-A76A-689C43B7E1B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{756E30CA-3A4B-4771-936C-5A09C33E6070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{756E30CA-3A4B-4771-936C-5A09C33E6070}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{756E30CA-3A4B-4771-936C-5A09C33E6070}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{756E30CA-3A4B-4771-936C-5A09C33E6070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{436526F1-35CE-433D-8F16-AAA8FB2C0C26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{436526F1-35CE-433D-8F16-AAA8FB2C0C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{436526F1-35CE-433D-8F16-AAA8FB2C0C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{436526F1-35CE-433D-8F16-AAA8FB2C0C26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{79D88279-087C-424C-B0F0-E2B2DA938A69} = {059C13D6-F900-478B-9480-ADEEEA8461C6}
+		{EE8F89DA-225F-4F15-95A6-C2C47E760915} = {059C13D6-F900-478B-9480-ADEEEA8461C6}
+		{FBE497BA-993C-4C89-A76A-689C43B7E1B5} = {059C13D6-F900-478B-9480-ADEEEA8461C6}
+		{756E30CA-3A4B-4771-936C-5A09C33E6070} = {059C13D6-F900-478B-9480-ADEEEA8461C6}
+		{436526F1-35CE-433D-8F16-AAA8FB2C0C26} = {059C13D6-F900-478B-9480-ADEEEA8461C6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D49A4C1-5691-4087-9C70-61C92A43A082}

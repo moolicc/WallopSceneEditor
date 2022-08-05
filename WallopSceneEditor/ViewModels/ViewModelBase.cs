@@ -14,7 +14,7 @@ namespace WallopSceneEditor.ViewModels
 
         public IScreen HostScreen { get; set;  }
 
-        public ViewModelBase()
+        protected ViewModelBase()
         {
             Activator = new ViewModelActivator();
             this.WhenActivated((CompositeDisposable d) =>

@@ -66,7 +66,6 @@ namespace WallopSceneEditor.Views
 
         private void InitializeComponent()
         {
-            var box = new TextBox();
             AvaloniaXamlLoader.Load(this);
         }
 

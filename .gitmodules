@@ -1,0 +1,3 @@
+[submodule "wallop"]
+	path = wallop
+	url = https://github.com/moolicc/wallop.git

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WallopSceneEditor.Models
 {
-    internal class RecentFilesModel
+    public class RecentFilesModel
     {
         public List<string> RecentFiles { get; private set; }
 

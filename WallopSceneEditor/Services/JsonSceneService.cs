@@ -1,16 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wallop.SceneManagement;
 
 namespace WallopSceneEditor.Services
 {
     internal class JsonSceneService : ISceneService
     {
-        public Models.Scene LoadScene(string filePath, params string[] fields)
+        public async Task<StoredScene> LoadSceneAsync(string filePath)
         {
-            return new Models.Scene() { Name = System.IO.Path.GetFileNameWithoutExtension(filePath) };
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                var result = await System.Text.Json.JsonSerializer.DeserializeAsync<StoredScene>(stream);
+                if(result == null)
+                {
+                    throw new FileLoadException("Failed to load scene.");
+                }
+                return result;
+            }
         }
     }
 }

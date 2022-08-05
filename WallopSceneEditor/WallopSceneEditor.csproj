@@ -27,4 +27,7 @@
     <PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\wallop\src\Wallop\Wallop.csproj" />
+  </ItemGroup>
 </Project>
