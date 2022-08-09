@@ -7,23 +7,99 @@ using System.Diagnostics;
 using WallopSceneEditor.Models;
 using System.Text.Json;
 using System.IO;
+using Wallop.Shared;
+using Wallop.Shared.Messaging;
+using Wallop.Shared.Messaging.Messages;
+using Wallop.IPC;
+using Wallop.Shared.Messaging.Remoting;
 
 namespace WallopSceneEditor.Services
 {
     public class WallopEngineService : IEngineService
     {
+        private const string RESOURCE_MESSENGER = "msg";
+        private const string RESOURCE_DELIMITER = "-";
+
         private const string CONF = "engine.json";
 
         private Process? _engineProc;
+        private bool _usingExistingProcess;
+
+        private PipeClient _msgClient;
+        private RemoteMessenger _messenger;
+
+        public void HookProcess(int pid)
+        {
+            _engineProc = Process.GetProcessById(pid);
+            _usingExistingProcess = true;
+        }
 
         public void StartProcess(AppSettingsModel appConfig, EngineConfigModel config, DataReceivedEventHandler onOutput)
+        {
+            _usingExistingProcess = false;
+            WriteEngineConfig(CONF, appConfig);
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = appConfig.EnginePath,
+                Arguments = $"[my-name:{config.InstanceName}] --configuration {CONF}",
+                WorkingDirectory = Environment.CurrentDirectory,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false
+            };
+            _engineProc = new Process();
+            _engineProc.OutputDataReceived += onOutput;
+            _engineProc.ErrorDataReceived += onOutput;
+            _engineProc.StartInfo = startInfo;
+            _engineProc.Start();
+            _engineProc.BeginOutputReadLine();
+        }
+
+        public Process? GetEngineProcess()
+            => _engineProc;
+
+
+        public async Task<bool> ConnectAsync(string myName, string hostName, string machine = ".")
+        {
+            try
+            {
+                _msgClient = new PipeClient(myName, machine, hostName, $"{hostName}{RESOURCE_DELIMITER}{RESOURCE_MESSENGER}");
+                _messenger = new RemoteMessenger(_msgClient, hostName);
+                //await _msgClient.BeginAsync().ConfigureAwait(false);
+
+                //var myId = _messenger.Put(new GraphicsMessage(100, 340));
+                //var res = _messenger.TryGetReply<MessageReply>(myId, out var reply);
+
+                //await _msgClient.EndAsync().ConfigureAwait(false);
+
+                if(_usingExistingProcess)
+                {
+                    // TODO: Download the configuration from the process via sending a request.
+                }
+
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void ShutdownProcess()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void WriteEngineConfig(string filepath, AppSettingsModel appConfig)
         {
             // TODO: Save configuration.
             var jsonModel = new
             {
                 AppSettings = new
                 {
-                    InstanceName = config.InstanceName,
+                    InstanceName = appConfig.EngineConfig.InstanceName,
                     DependencyPaths = new[]
                     {
                         new
@@ -43,41 +119,12 @@ namespace WallopSceneEditor.Services
                 },
                 GraphicsSettings = new
                 {
-                    WindowWidth = config.Width,
-		            WindowHeight = config.Height,
+                    WindowWidth = appConfig.EngineConfig.Width,
+                    WindowHeight = appConfig.EngineConfig.Height,
                 }
             };
             var json = JsonSerializer.Serialize(jsonModel);
-            File.WriteAllText(CONF, json);
-
-            var startInfo = new ProcessStartInfo()
-            {
-                FileName = appConfig.EnginePath,
-                Arguments = $"--configuration {CONF}",
-                WorkingDirectory = Environment.CurrentDirectory,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false
-            };
-            _engineProc = new Process();
-            _engineProc.OutputDataReceived += onOutput;
-            _engineProc.ErrorDataReceived += onOutput;
-            _engineProc.StartInfo = startInfo;
-            _engineProc.Start();
-            _engineProc.BeginOutputReadLine();
-        }
-
-        public Process? GetEngineProcess()
-            => _engineProc;
-
-        public void ShutdownProcess()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Connect(string instanceName)
-        {
-            throw new NotImplementedException();
+            File.WriteAllText(filepath, json);
         }
     }
 }

@@ -14,6 +14,8 @@ namespace WallopSceneEditor.Models
         public string PluginDirectory { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
         public string EnginePath { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wallop.exe");
 
+        public string ApplicationName { get; set; } = "edit";
+
         public EngineConfigModel EngineConfig { get; set; } = new EngineConfigModel();
     }
 }

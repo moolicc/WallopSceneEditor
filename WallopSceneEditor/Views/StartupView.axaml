@@ -37,32 +37,58 @@
 
 
 		<DockPanel Margin="8" HorizontalAlignment="Stretch">
-			<StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+			
+			<TabControl Name="TabControl" DockPanel.Dock="Top" SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
+				<TabItem>
+					<TabItem.Header>Load scene from disk</TabItem.Header>
 
-				<TextBlock Margin="0,4,0,0" Text="Scene name"></TextBlock>
-				<TextBox Margin="0,4,0,4" Text="{Binding SceneName}"></TextBox>
+					<StackPanel Orientation="Vertical">
 
-				<TextBlock Margin="0,4,0,0" Text="File name"></TextBlock>
-				<TextBox Margin="0,4,0,4" Text="{Binding SceneFileName, Mode=TwoWay}"></TextBox>
+						<TextBlock Margin="0,4,0,0" Text="Scene name"></TextBlock>
+						<TextBox Margin="0,4,0,4" Text="{Binding SceneName}"></TextBox>
 
-				<TextBlock Margin="0,4,0,0" Text="Scene file"></TextBlock>
-				<v:FilePicker HorizontalAlignment="Stretch" Margin="0,4,0,4" Watermark="Scene file" SelectedFile="{Binding SelectedFile, Mode=TwoWay}" Filter="Json files;json|All files;*" FileSelectedCommand="{Binding FileSelected}"></v:FilePicker>
+						<TextBlock Margin="0,4,0,0" Text="File name"></TextBlock>
+						<TextBox Margin="0,4,0,4" Text="{Binding SceneFileName, Mode=TwoWay}"></TextBox>
 
+						<TextBlock Margin="0,4,0,0" Text="Scene file"></TextBlock>
+						<v:FilePicker HorizontalAlignment="Stretch" Margin="0,4,0,4" Watermark="Scene file" SelectedFile="{Binding SelectedFile, Mode=TwoWay}" Filter="Json files;json|All files;*" FileSelectedCommand="{Binding FileSelected}"></v:FilePicker>
+					</StackPanel>
+				</TabItem>
 
-				<TextBlock Margin="0,4,0,0" Text="Use currently loaded scene"></TextBlock>
-				<ComboBox Margin="0,4,0,4" HorizontalAlignment="Stretch">
-					<ComboBoxItem>Wallop (process ID)</ComboBoxItem>
-					<ComboBoxItem>Wallop (process ID)</ComboBoxItem>
-					<ComboBoxItem>Wallop (process ID)</ComboBoxItem>
-				</ComboBox>
-			</StackPanel>
+				<TabItem>
+					<TabItem.Header>Load scene from engine</TabItem.Header>
 
+					<StackPanel Orientation="Vertical">
+
+						<Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
+
+							<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,4,0,0" Text="Use currently loaded scene"></TextBlock>
+							<ComboBox Grid.Row="1" Grid.Column="0" Margin="0,4,0,4" HorizontalAlignment="Stretch" Items="{Binding OtherProcesses}" SelectionChanged="OtherProcsSelectedChanged">
+								<ComboBox.ItemTemplate>
+									<DataTemplate>
+										<StackPanel Orientation="Horizontal">
+											<TextBlock Text="{Binding Text}"></TextBlock>
+										</StackPanel>
+									</DataTemplate>
+								</ComboBox.ItemTemplate>
+							</ComboBox>
+
+							<TextBlock Margin="8,0,0,4" Grid.Row="0" Grid.Column="1" Text="Loaded scene"></TextBlock>
+							<TextBox IsReadOnly="True" Height="32" Margin="8,0,0,0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Text="{Binding OtherProcSceneName}"></TextBox>
+
+						</Grid>
+
+					</StackPanel>
+				</TabItem>
+			</TabControl>
+			
 			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="Settings" Command="{Binding ShowSettingsCommand}"></Button>
 			<Button DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Content="{Binding ButtonText}" IsEnabled="{Binding ButtonEnabled}" Command="{Binding BeginEditCommand}"></Button>
 		</DockPanel>
 
-		
-		
+
+
+
 	</DockPanel>
 	
 </UserControl>

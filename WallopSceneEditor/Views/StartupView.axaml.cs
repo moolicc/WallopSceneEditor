@@ -29,5 +29,18 @@ namespace WallopSceneEditor.Views
                 ViewModel?.OnListSelectedItem(item);
             }
         }
+
+        private void OtherProcsSelectedChanged(object? sender, SelectionChangedEventArgs args)
+        {
+            if (args.AddedItems.Count <= 0)
+            {
+                ViewModel?.OnOtherProcessSelectedItem(null);
+            }
+            else
+            {
+                var item = args.AddedItems[0] as ViewModels.ProcessItemViewModel;
+                ViewModel?.OnOtherProcessSelectedItem(item);
+            }
+        }
     }
 }

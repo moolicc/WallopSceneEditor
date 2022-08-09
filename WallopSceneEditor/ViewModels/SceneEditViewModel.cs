@@ -58,9 +58,13 @@ namespace WallopSceneEditor.ViewModels
 
                 _engineService.StartProcess(appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
                 var proc = _engineService.GetEngineProcess()!;
-                AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
+                //AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
 
                 proc.Exited += Proc_Exited;
+
+
+
+                _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
             }
             base.OnActivate();
         }

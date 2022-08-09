@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -22,6 +24,7 @@ namespace WallopSceneEditor.ViewModels
         public string SceneName { get; set; }
         public string Message { get; set; }
         public bool HasErrors { get; set; }
+
 
         public RecentFileViewModel(string filePath, string sceneName)
         {
@@ -102,6 +105,24 @@ namespace WallopSceneEditor.ViewModels
         }
         private RecentFileViewModel[] _recentFiles = new[] { RecentFileViewModel.Empty };
 
+        public int SelectedTab
+        {
+            get => _selectedTab;
+            set => this.RaiseAndSetIfChanged(ref _selectedTab, value);
+        }
+        private int _selectedTab = 0;
+
+
+
+        public ObservableCollection<ProcessItemViewModel> OtherProcesses { get; set; }
+
+        public string OtherProcSceneName
+        {
+            get => _otherProcSceneName;
+            set => this.RaiseAndSetIfChanged(ref _otherProcSceneName, value);
+        }
+        private string _otherProcSceneName = "";
+
 
         public ICommand BeginEditCommand { get; }
         public ICommand ShowSettingsCommand { get; }
@@ -113,6 +134,7 @@ namespace WallopSceneEditor.ViewModels
         private IWindowService _windowService;
         private ISceneService _sceneService;
         private bool _loadingRecents;
+        private bool _deactivating;
 
         internal StartupViewModel(ISettingsService settingsService, IWindowService windowService, ISceneService sceneService)
         {
@@ -120,6 +142,9 @@ namespace WallopSceneEditor.ViewModels
             _settingsService = settingsService;
             _windowService = windowService;
             _sceneService = sceneService;
+            OtherProcesses = new ObservableCollection<ProcessItemViewModel>();
+
+            _deactivating = false;
 
             BeginEditCommand = ReactiveCommand.Create(() =>
             {
@@ -143,6 +168,7 @@ namespace WallopSceneEditor.ViewModels
 
                 var result = await dialog.ShowDialog<bool?>((_windowService as AvaloniaWindowService)!.MainWindow);
             });
+
         }
 
         public void FileSelected(Views.FilePicker? picker)
@@ -174,11 +200,28 @@ namespace WallopSceneEditor.ViewModels
                 SceneName = item.SceneName;
                 SelectedFile = item.FilePath;
             }
+
+            SelectedTab = 0;
+        }
+
+        public void OnOtherProcessSelectedItem(ProcessItemViewModel? item)
+        {
+            if (item != null)
+            {
+                // TODO: Resolve scene name.
+
+                OtherProcSceneName = "Loading ...";
+            }
+            else
+            {
+                OtherProcSceneName = "";
+            }
         }
 
         protected override void OnActivate()
         {
             LoadRecentFiles();
+            SetProcessList();
         }
 
         private void LoadRecentFiles()
@@ -216,6 +259,33 @@ namespace WallopSceneEditor.ViewModels
                     _loadingRecents = false;
                 });
             }
+        }
+
+        private void CheckProcesses()
+        {
+        }
+
+        private void SetProcessList()
+        {
+            var processes = Process.GetProcessesByName("wallop");
+
+            foreach (var proc in processes)
+            {
+                if(!OtherProcesses.Any(p => p.ProcessId == proc.Id))
+                {
+                    OtherProcesses.Add(new ProcessItemViewModel(proc.ProcessName, proc.Id));
+                }
+            }
+
+            foreach (var listedProc in OtherProcesses)
+            {
+                if (!processes.Any(p => p.Id == listedProc.ProcessId))
+                {
+                    OtherProcesses.Remove(listedProc);
+                }
+            }
+
+            this.RaisePropertyChanged(nameof(OtherProcesses));
         }
 
         private void SetSelectedFileByName()
