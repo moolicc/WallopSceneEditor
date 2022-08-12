@@ -1,6 +1,9 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
+using Projektanker.Icons.Avalonia;
+using Projektanker.Icons.Avalonia.FontAwesome;
+using Projektanker.Icons.Avalonia.MaterialDesign;
 using System;
 
 namespace WallopSceneEditor
@@ -24,6 +27,9 @@ namespace WallopSceneEditor
                 .UsePlatformDetect()
                 .UseReactiveUI()
                 .LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI()
+                .WithIcons(container => container
+                .Register<FontAwesomeIconProvider>()
+                .Register<MaterialDesignIconProvider>());
     }
 }

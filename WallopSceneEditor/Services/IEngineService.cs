@@ -10,7 +10,7 @@ namespace WallopSceneEditor.Services
     public interface IEngineService
     {
         void HookProcess(int pid);
-        void StartProcess(AppSettingsModel appConfig, EngineConfigModel config, System.Diagnostics.DataReceivedEventHandler onOutput);
+        void StartProcess(string parentHandle, AppSettingsModel appConfig, EngineConfigModel config, System.Diagnostics.DataReceivedEventHandler onOutput);
         System.Diagnostics.Process? GetEngineProcess();
         void ShutdownProcess();
 

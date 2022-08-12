@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WallopSceneEditor.Models;
 using WallopSceneEditor.ViewModels;
 
 namespace WallopSceneEditor.Services
@@ -15,6 +16,8 @@ namespace WallopSceneEditor.Services
     {
         public IClassicDesktopStyleApplicationLifetime Desktop { get; private set; }
         public Window MainWindow { get; init; }
+        public IntPtr WindowHandle => MainWindow.PlatformImpl.Handle.Handle;
+
         public Dictionary<string, IScreen> Screens { get; init; }
 
 
@@ -68,6 +71,16 @@ namespace WallopSceneEditor.Services
             if(viewModel.HostScreen == null)
             {
                 viewModel.HostScreen = targetScreen;
+            }
+
+            if(viewModel is SceneEditViewModel edit)
+            {
+                var factory = new MainDockFactory(edit.SessionData, edit.SessionMutator);
+                var layout = factory.CreateLayout();
+                factory.InitLayout(layout);
+
+                edit.Factory = factory;
+                edit.Layout = layout;
             }
 
             targetScreen.Router.Navigate.Execute(viewModel);

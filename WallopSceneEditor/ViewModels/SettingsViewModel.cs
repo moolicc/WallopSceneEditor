@@ -101,7 +101,7 @@ namespace WallopSceneEditor.ViewModels
                 var folder = await _windows.ShowFileDialogAsync<OpenFolderDialog>(d => BuildFolderDialog(d, "Select Modules Folder", SceneFolder));
                 if (folder != null)
                 {
-                    SceneFolder = folder;
+                    ModuleFolder = folder;
                 }
             });
 
@@ -110,7 +110,7 @@ namespace WallopSceneEditor.ViewModels
                 var folder = await _windows.ShowFileDialogAsync<OpenFolderDialog>(d => BuildFolderDialog(d, "Select Plugin Folder", SceneFolder));
                 if (folder != null)
                 {
-                    SceneFolder = folder;
+                    PluginFolder = folder;
                 }
             });
 

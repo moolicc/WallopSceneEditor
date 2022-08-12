@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:v="using:WallopSceneEditor.Views"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="400"
              x:Class="WallopSceneEditor.Views.StartupView">
 
 	<DockPanel>
@@ -58,8 +58,6 @@
 				<TabItem>
 					<TabItem.Header>Load scene from engine</TabItem.Header>
 
-					<StackPanel Orientation="Vertical">
-
 						<Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
 
 							<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,4,0,0" Text="Use currently loaded scene"></TextBlock>
@@ -77,8 +75,6 @@
 							<TextBox IsReadOnly="True" Height="32" Margin="8,0,0,0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Text="{Binding OtherProcSceneName}"></TextBox>
 
 						</Grid>
-
-					</StackPanel>
 				</TabItem>
 			</TabControl>
 			

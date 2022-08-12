@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using Avalonia.VisualTree;
+using Avalonia.Win32;
 
 namespace WallopSceneEditor.Views
 {
@@ -10,6 +12,7 @@ namespace WallopSceneEditor.Views
         public StartupView()
         {
             InitializeComponent();
+
         }
 
         private void InitializeComponent()

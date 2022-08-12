@@ -34,10 +34,10 @@ namespace WallopSceneEditor.Services
             _usingExistingProcess = true;
         }
 
-        public void StartProcess(AppSettingsModel appConfig, EngineConfigModel config, DataReceivedEventHandler onOutput)
+        public void StartProcess(string parentHandle, AppSettingsModel appConfig, EngineConfigModel config, DataReceivedEventHandler onOutput)
         {
             _usingExistingProcess = false;
-            WriteEngineConfig(CONF, appConfig);
+            WriteEngineConfig(CONF, appConfig, parentHandle);
 
             var startInfo = new ProcessStartInfo()
             {
@@ -92,7 +92,7 @@ namespace WallopSceneEditor.Services
             throw new NotImplementedException();
         }
 
-        private void WriteEngineConfig(string filepath, AppSettingsModel appConfig)
+        private void WriteEngineConfig(string filepath, AppSettingsModel appConfig, string parentHandle)
         {
             // TODO: Save configuration.
             var jsonModel = new
@@ -120,7 +120,7 @@ namespace WallopSceneEditor.Services
                 GraphicsSettings = new
                 {
                     WindowWidth = appConfig.EngineConfig.Width,
-                    WindowHeight = appConfig.EngineConfig.Height,
+                    ParentHandle = parentHandle,
                 }
             };
             var json = JsonSerializer.Serialize(jsonModel);

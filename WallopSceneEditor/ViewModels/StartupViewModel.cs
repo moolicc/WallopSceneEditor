@@ -148,14 +148,14 @@ namespace WallopSceneEditor.ViewModels
 
             BeginEditCommand = ReactiveCommand.Create(() =>
             {
-                if(SceneName == null)
+                if (SceneName == null)
                 {
                     // TODO: Show error
                     // Failed.
                     return;
                 }
                 var vm = _windowService.ResolveView_Inject<SceneEditViewModel>();
-                vm.Scene = _sceneService.CreateScene(SceneName, SelectedFile);
+                vm.CreateSession(_sceneService.CreateScene(SceneName, SelectedFile));
 
                 _windowService.SwitchView("main", vm);
             });

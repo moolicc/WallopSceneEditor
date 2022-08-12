@@ -7,41 +7,76 @@ using System.Diagnostics;
 using WallopSceneEditor.Services;
 using ReactiveUI;
 using System.Collections.ObjectModel;
+using Dock.Model.Core;
+using WallopSceneEditor.Models;
 
 namespace WallopSceneEditor.ViewModels
 {
     public class SceneEditViewModel : ViewModelBase
     {
-        public Wallop.Shared.ECS.StoredScene? Scene { get; set; }
+        public ObservableCollection<string> OutputList { get; set; }
 
         public string? AttachedProcessText
         {
             get => _attachedProcessText;
             set => this.RaiseAndSetIfChanged(ref _attachedProcessText, value);
         }
-        private string? _attachedProcessText = "AttachedProcess:";
 
         public int SelectedOutputItem
         {
             get => _selectedOutputItem;
             set => this.RaiseAndSetIfChanged(ref _selectedOutputItem, value);
         }
+
+        public IFactory Factory
+        {
+            get => _factory;
+            set => this.RaiseAndSetIfChanged(ref _factory, value);
+        }
+
+        public IDock Layout
+        {
+            get => _layout;
+            set => this.RaiseAndSetIfChanged(ref _layout, value);
+        }
+
+        public string CurrentView
+        {
+            get => _currentView;
+            set => this.RaiseAndSetIfChanged(ref _currentView, value);
+        }
+
+        public SessionDataModel SessionData { get; private set; }
+        public SessionDataSceneMutator SessionMutator { get; private set; }
+
+
+        private string? _attachedProcessText = "AttachedProcess:";
         private int _selectedOutputItem;
 
-        public ObservableCollection<string> OutputList { get; set; }
-
+        private IDock _layout;
+        private string _currentView;
+        private IFactory _factory;
 
 
         private bool _loading;
 
         private ISettingsService _settings;
         private IEngineService _engineService;
+        private IWindowService _windowService;
 
-        public SceneEditViewModel(ISettingsService settings, IEngineService engineService)
+        public SceneEditViewModel(ISettingsService settings, IEngineService engineService, IWindowService windowService)
         {
             _settings = settings;
             _engineService = engineService;
+            _windowService = windowService;
             OutputList = new ObservableCollection<string>();
+        }
+
+        public void CreateSession(Wallop.Shared.ECS.StoredScene scene)
+        {
+            var appSettings = _settings.GetSettingsAsync().Result;
+            SessionData = new SessionDataModel(scene, appSettings.PackageDirectory);
+            SessionMutator = new SessionDataSceneMutator(SessionData);
         }
 
         protected override void OnActivate()
@@ -49,22 +84,21 @@ namespace WallopSceneEditor.ViewModels
             if(!_loading)
             {
                 var appSettings = _settings.GetSettingsAsync().Result;
-
                 _loading = true;
-                if (Scene == null)
-                {
-                    throw new NullReferenceException();
-                }
+                // TODO: If we are using an existing engine instance.
 
-                _engineService.StartProcess(appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
-                var proc = _engineService.GetEngineProcess()!;
+
+                // TODO: If we're not using an existing engine instance.
+                //_engineService.StartProcess(_windowService.WindowHandle.ToString(), appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
+                //var proc = _engineService.GetEngineProcess()!;
+
                 //AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
 
-                proc.Exited += Proc_Exited;
+                //proc.Exited += Proc_Exited;
 
 
 
-                _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
+                //_engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
             }
             base.OnActivate();
         }

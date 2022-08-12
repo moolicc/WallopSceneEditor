@@ -10,6 +10,7 @@ namespace WallopSceneEditor.Services
 {
     public interface IWindowService
     {
+        IntPtr WindowHandle { get; }
         T ResolveView_Inject<T>() where T : ViewModelBase;
         T ResolveView<T>(params object[] args) where T : ViewModelBase;
 

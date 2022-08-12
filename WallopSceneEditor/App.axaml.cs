@@ -6,6 +6,7 @@ using WallopSceneEditor.ViewModels;
 using WallopSceneEditor.Views;
 using System;
 using System.Diagnostics;
+using WallopSceneEditor.Models;
 
 namespace WallopSceneEditor
 {
@@ -20,22 +21,22 @@ namespace WallopSceneEditor
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var di = new HashedDependencyInjection();
-                BuildServices(di);
-
 
 
                 var mainWindow = new MainWindow();
                 mainWindow.ViewModel = new MainWindowViewModel();
 
                 desktop.MainWindow = mainWindow;
-                var windowService = new AvaloniaWindowService(desktop, di);
 
+                var di = new HashedDependencyInjection();
+                BuildServices(di);
+                var windowService = new AvaloniaWindowService(desktop, di);
+                di.Add<IWindowService, AvaloniaWindowService>(windowService);
 
                 windowService.AddScreen("main", mainWindow.ViewModel);
-
-                di.Add<IWindowService, AvaloniaWindowService>(windowService);
                 windowService.SwitchView<StartupViewModel>("main");
+
+
             }
 
             var now = DateTime.Now.Ticks;

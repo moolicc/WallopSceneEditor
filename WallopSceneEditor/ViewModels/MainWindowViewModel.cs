@@ -9,5 +9,11 @@ namespace WallopSceneEditor.ViewModels
     {
 
         public RoutingState Router { get; } = new RoutingState();
+
+
+
+        public MainWindowViewModel()
+        {
+        }
     }
 }

@@ -1,14 +1,14 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.VisualTree;
-using Avalonia.Win32;
+using Avalonia.ReactiveUI;
+using WallopSceneEditor.ViewModels.Documents;
 
-namespace WallopSceneEditor.Views
+namespace WallopSceneEditor.Views.Documents
 {
-    public partial class SceneEditView : Avalonia.ReactiveUI.ReactiveUserControl<ViewModels.SceneEditViewModel>
+    public partial class ScenePreviewView : ReactiveUserControl<ScenePreviewViewModel>
     {
-        public SceneEditView()
+        public ScenePreviewView()
         {
             InitializeComponent();
         }
