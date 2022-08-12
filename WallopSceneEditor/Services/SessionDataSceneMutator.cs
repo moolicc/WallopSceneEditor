@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Wallop.Shared.ECS;
+using Wallop.Shared.Modules;
 using WallopSceneEditor.Models;
 namespace WallopSceneEditor.Services
 {
@@ -43,9 +44,17 @@ namespace WallopSceneEditor.Services
                             InstanceName = name,
                             ModuleId = module.ModuleInfo.Id
                         };
+                        
+                        if(ValidateSettings(newActor.Settings, module.ModuleSettings))
+                        {
+                            FindLayout(parentLayout, out _)?.ActorModules.Add(newActor);
+                            failed = false;
+                        }
+                        else
+                        {
+                            messages.Add("Missing one or more required settings.");
+                        }
 
-                        FindLayout(parentLayout, out _)?.ActorModules.Add(newActor);
-                        failed = false;
                     }
                     else
                     {
@@ -89,8 +98,15 @@ namespace WallopSceneEditor.Services
                             ModuleId = module.ModuleInfo.Id
                         };
 
-                        _sessionData.LoadedScene.DirectorModules.Add(newDirector);
-                        failed = false;
+                        if (ValidateSettings(newDirector.Settings, module.ModuleSettings))
+                        {
+                            _sessionData.LoadedScene.DirectorModules.Add(newDirector);
+                            failed = false;
+                        }
+                        else
+                        {
+                            messages.Add("Missing one or more required settings.");
+                        }
                     }
                     else
                     {
@@ -144,6 +160,22 @@ namespace WallopSceneEditor.Services
             }
         }
 
+
+        private bool ValidateSettings(List<StoredSetting> activeSettings, IEnumerable<ModuleSetting> moduleSettings)
+        {
+            foreach (var item in moduleSettings)
+            {
+                if(item.Required)
+                {
+                    if(!activeSettings.Any(a => a.Name == item.SettingName))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
 
         private (string Package, string Module)? BreakdownModulePath(string path)
         {

@@ -4,5 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="WallopSceneEditor.Views.Tools.PropertiesView">
-  Welcome to Avalonia!
+
+	<Grid Margin="2" RowDefinitions="*,1,75">
+
+		<DataGrid Grid.Row="0" MinHeight="100" Items="{Binding Properties}">
+			<DataGrid.Columns>
+				<DataGridCheckBoxColumn Header="Required" Binding="{Binding Required}"></DataGridCheckBoxColumn>
+				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
+				<DataGridTextColumn Header="Value" Binding="{Binding Value}"></DataGridTextColumn>
+				<DataGridTextColumn Header="Type" Binding="{Binding Type}"></DataGridTextColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+		
+		<GridSplitter Grid.Row="1" ResizeDirection="Rows"></GridSplitter>
+
+		<Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="LightGray" Background="GhostWhite">
+			<TextBlock Text="Details go here..."></TextBlock>
+		</Border>
+		
+		
+	</Grid>
+	
 </UserControl>
