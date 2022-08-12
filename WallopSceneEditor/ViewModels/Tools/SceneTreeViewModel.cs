@@ -9,7 +9,7 @@ using WallopSceneEditor.Services;
 
 namespace WallopSceneEditor.ViewModels.Tools
 {
-    public class SceneTreeViewModel : Tool
+    public class SceneTreeViewModel : ViewModelBase
     {
         public ObservableCollection<ItemViewModel> Modules { get; set; }
 

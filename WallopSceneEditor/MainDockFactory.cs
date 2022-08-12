@@ -48,8 +48,6 @@ namespace WallopSceneEditor
 
             var sceneTree = new SceneTreeViewModel()
             {
-                Id = "SceneTree",
-                Title = "Scene Tree",
                 Modules = new System.Collections.ObjectModel.ObservableCollection<ItemViewModel>(new[] { BuildSceneTree(_context.LoadedScene) })
             };
 
@@ -124,7 +122,7 @@ namespace WallopSceneEditor
                                 ActiveDockable = packagesList,
                                 VisibleDockables = CreateList<IDockable>
                                 (
-                                    sceneTree
+
                                 ),
                                 Alignment = Alignment.Left,
                                 GripMode = GripMode.Visible
