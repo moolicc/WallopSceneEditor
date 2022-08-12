@@ -30,7 +30,7 @@ namespace WallopSceneEditor.Services
 
             if (moduleInfo.HasValue)
             {
-                var package = _sessionData.Packages.FirstOrDefault(p => p.Info.PackageName == moduleInfo.Value.Package);
+                var package = _sessionData.Packages.FirstOrDefault(p => p.Info.ManifestPath == moduleInfo.Value.Package);
 
                 if (package != null)
                 {
