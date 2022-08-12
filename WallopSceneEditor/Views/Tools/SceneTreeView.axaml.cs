@@ -13,7 +13,7 @@ using Avalonia.Input;
 namespace WallopSceneEditor.Views.Tools
 {
 
-    public partial class SceneTreeView : ReactiveUserControl<SceneTreeViewModel>
+    public partial class SceneTreeView : UserControl
     {
         public SceneTreeView()
         {

@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace WallopSceneEditor.Views
 {
-    public partial class ItemToolTipView : Avalonia.ReactiveUI.ReactiveUserControl<ViewModels.ItemToolTipViewModel>
+    public partial class ItemToolTipView : UserControl
     {
         public ItemToolTipView()
         {

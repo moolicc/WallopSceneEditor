@@ -5,7 +5,7 @@ using System;
 
 namespace WallopSceneEditor.Views
 {
-    public partial class SceneTreeItemView : Avalonia.ReactiveUI.ReactiveUserControl<ViewModels.ItemViewModel>
+    public partial class SceneTreeItemView : UserControl
     {
         public SceneTreeItemView()
         {
