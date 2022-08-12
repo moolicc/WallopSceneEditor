@@ -9,33 +9,18 @@
 			 x:CompileBindings="True" x:DataType="vm:ItemViewModel">
 
 
+	<StackPanel Orientation="Horizontal">
 
-	<Panel>
-		<StackPanel IsVisible="{Binding Captioned}" Orientation="Horizontal">
+		<ToolTip.Tip>
+			<v:ItemToolTipView DataContext="{Binding ToolTip}">
+			</v:ItemToolTipView>
+		</ToolTip.Tip>
 
-			<ToolTip.Tip>
-				<v:ItemToolTipView DataContext="{Binding ToolTip}">
-				</v:ItemToolTipView>
-			</ToolTip.Tip>
+		<TextBlock IsVisible="{Binding HasError}" Text="⚠️  " Foreground="Red"></TextBlock>
+		<TextBlock Margin="0,0,4,0" Text="{Binding Icon}"></TextBlock>
 
-			<TextBlock FontSize="12" FontWeight="Light" IsVisible="{Binding HasError}" Text="⚠️  " Foreground="Red"></TextBlock>
-			<TextBlock FontSize="12" FontWeight="Light" Margin="0,0,4,0" Text="{Binding Icon}"></TextBlock>
-			<TextBlock FontSize="12" FontWeight="Light" Text="{Binding NodeText}"></TextBlock>
-		</StackPanel>
-		<StackPanel IsVisible="{Binding !Captioned}" Orientation="Horizontal">
+		<TextBlock Text="{Binding NodeText}"></TextBlock>
 
-			<ToolTip.Tip>
-				<v:ItemToolTipView DataContext="{Binding ToolTip}">
-				</v:ItemToolTipView>
-			</ToolTip.Tip>
-
-			<TextBlock IsVisible="{Binding HasError}" Text="⚠️  " Foreground="Red"></TextBlock>
-			<TextBlock Margin="0,0,4,0" Text="{Binding Icon}"></TextBlock>
-
-			<Canvas>
-				<TextBlock Canvas.Left="0" Canvas.Top="0" IsVisible="{Binding !EditingText}" Name="NodeTextBlock" Text="{Binding NodeText}"></TextBlock>
-				<TextBox Canvas.Left="0" Canvas.Top="0" IsVisible="{Binding EditingText}" Name="NodeTextBox" Text="{Binding NodeText, Mode=TwoWay}"></TextBox>
-			</Canvas>
-		</StackPanel>
-	</Panel>
+	</StackPanel>
+	
 </UserControl>

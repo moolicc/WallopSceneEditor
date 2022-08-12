@@ -46,14 +46,14 @@ namespace WallopSceneEditor
 
 
 
-            var sceneTree = new SceneTreeViewModel(_sceneMutator)
+            var sceneTree = new SceneTreeViewModel()
             {
                 Id = "SceneTree",
                 Title = "Scene Tree",
-                SceneTreeRoot = BuildSceneTree(_context.LoadedScene)
+                Modules = new System.Collections.ObjectModel.ObservableCollection<ItemViewModel>(new[] { BuildSceneTree(_context.LoadedScene) })
             };
 
-            var packagesList = new PackagesListViewModel(_sceneMutator, () => sceneTree.ActiveLayout?.NodeText ?? "")
+            var packagesList = new PackagesListViewModel
             {
                 Id = "PackagesList",
                 Title = "Packages",

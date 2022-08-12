@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
@@ -11,7 +11,9 @@ namespace WallopSceneEditor.Views
         public SceneEditView()
         {
             InitializeComponent();
+
         }
+
 
         private void InitializeComponent()
         {

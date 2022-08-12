@@ -23,8 +23,6 @@ namespace WallopSceneEditor.ViewModels
     {
         public ObservableCollection<ItemViewModel> Children { get; set; }
 
-        public ItemTypes Type { get; set; }
-        public string Tag { get; set; }
         public string Icon { get; set; }
         public bool HasError { get; private set; }
 
@@ -41,24 +39,8 @@ namespace WallopSceneEditor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _nodeText, value);
         }
 
-        public bool EditingText
-        {
-            get => _editingText;
-            set => this.RaiseAndSetIfChanged(ref _editingText, value);
-        }
-
-        public bool ItemSelected
-        {
-            get => _itemSelected;
-            set => this.RaiseAndSetIfChanged(ref _itemSelected, value);
-        }
-        public bool Captioned { get; set; }
-
-        public Action<ItemViewModel>? OnRenamedCallback;
 
         private string _nodeText;
-        private bool _editingText;
-        private bool _itemSelected;
         private ItemToolTipViewModel _toolTip;
 
 
@@ -66,67 +48,13 @@ namespace WallopSceneEditor.ViewModels
         {
             _nodeText = nodeText;
 
-            Type = type;
-            Tag = tag;
             Icon = icon;
             HasError = false;
             Description = description;
 
-            _toolTip = new ItemToolTipViewModel(description, "", "");
-            if (type == ItemTypes.Actor || type == ItemTypes.Director)
-            {
-                SetToolTip(description, tag);
-            }
-            else
-            {
-                SetToolTip(description);
-            }
+            _toolTip = new ItemToolTipViewModel(description, "module", "package");
 
             Children = new ObservableCollection<ItemViewModel>();
-        }
-
-        public void AddChild(ItemViewModel newChild)
-        {
-            Children.Add(newChild);
-            this.RaisePropertyChanged(nameof(Children));
-        }
-
-        public void SetError(string errorMessage)
-        {
-            if (string.IsNullOrEmpty(errorMessage))
-            {
-                HasError = false;
-                _toolTip.ErrorMessage = null;
-                return;
-            }
-
-            _toolTip.ErrorMessage = errorMessage;
-            HasError = true;
-        }
-
-        public void Rename(string newName)
-        {
-            OnRenamedCallback?.Invoke(this);
-        }
-
-        public void SetToolTip(string description)
-        {
-            _toolTip.Description = description;
-        }
-
-        public void SetToolTip(string description, string modulePath)
-        {
-            _toolTip.Description = description;
-            if (modulePath != null)
-            {
-                if (modulePath.Contains('>'))
-                {
-                    var split = modulePath.Split(new[] { '>' }, 2);
-
-                    _toolTip.Package = split[0];
-                    _toolTip.Module = split[1];
-                }
-            }
         }
 
         public static ItemViewModel CreateScene(string sceneName, string sceneFile)
@@ -167,59 +95,7 @@ namespace WallopSceneEditor.ViewModels
                 tooltip += "\nOptional.";
             }
 
-            return new ItemViewModel(ItemTypes.Setting, name, nodeText, "🛠", tooltip) { Captioned = true };
+            return new ItemViewModel(ItemTypes.Setting, name, nodeText, "🛠", tooltip);
         }
     }
-
-    /*
-    public class SceneViewItemViewModel : ItemViewModel
-    {
-
-        public SceneViewItemViewModel(string sceneName, bool hasError, string tooltipText)
-            : base(sceneName, "🎞 ", hasError, tooltipText)
-        {
-        }
-    }
-
-    public class LayoutViewItemViewModel : ItemViewModel
-    {
-
-        public LayoutViewItemViewModel(string layoutName, bool hasError, string tooltipText)
-            : base(layoutName, "📋 ", hasError, tooltipText)
-        {
-        }
-    }
-
-    public class PackageViewItemViewModel : ItemViewModel
-    {
-
-        public PackageViewItemViewModel(string packageName, bool hasError, string tooltipText)
-            : base(packageName, "📦 ", hasError, tooltipText)
-        {
-        }
-    }
-
-    public class DirectorModuleViewItemViewModel : ItemViewModel
-    {
-        public DirectorModuleViewItemViewModel(string directorName, bool hasError, string tooltipText)
-            : base(directorName, "🎬 ", hasError, tooltipText)
-        {
-        }
-    }
-
-    public class ActorModuleViewItemViewModel : ItemViewModel
-    {
-        public ActorModuleViewItemViewModel(string actorName, bool hasError, string tooltipText)
-            : base(actorName, "🎭 ", hasError, tooltipText)
-        {
-        }
-    }
-
-    public class SettingViewItemViewModel : ItemViewModel
-    {
-        public SettingViewItemViewModel(string settingName, string settingValue, string tooltipText)
-            : base($"{settingName}: \"{settingValue}\"", "🛠 ", false, tooltipText)
-        {
-        }
-    }*/
 }

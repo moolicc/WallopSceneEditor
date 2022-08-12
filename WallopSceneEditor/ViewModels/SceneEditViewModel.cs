@@ -50,6 +50,8 @@ namespace WallopSceneEditor.ViewModels
         public SessionDataSceneMutator SessionMutator { get; private set; }
 
 
+        public ObservableCollection<ItemViewModel> Modules { get; set; }
+
         private string? _attachedProcessText = "AttachedProcess:";
         private int _selectedOutputItem;
 
@@ -66,6 +68,11 @@ namespace WallopSceneEditor.ViewModels
 
         public SceneEditViewModel(ISettingsService settings, IEngineService engineService, IWindowService windowService)
         {
+            Modules = new System.Collections.ObjectModel.ObservableCollection<ViewModels.ItemViewModel>
+            {
+                new ViewModels.ItemViewModel(ViewModels.ItemTypes.Scene, "package>module", "text", "😀", "description")
+            };
+
             _settings = settings;
             _engineService = engineService;
             _windowService = windowService;
