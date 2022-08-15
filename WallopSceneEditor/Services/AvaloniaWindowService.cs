@@ -37,7 +37,7 @@ namespace WallopSceneEditor.Services
             _notifyManager = new WindowNotificationManager(MainWindow)
             {
                 Position = NotificationPosition.TopRight,
-                MaxItems = 3
+                MaxItems = 5
             };
         }
 

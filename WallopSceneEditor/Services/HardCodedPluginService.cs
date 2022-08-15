@@ -16,6 +16,7 @@ namespace WallopSceneEditor.Services
                 yield return (T)(object)new Plugins.SettingTypeGuiProviders.FileGuiProvider();
                 yield return (T)(object)new Plugins.SettingTypeGuiProviders.RealNumberGuiProvider();
                 yield return (T)(object)new Plugins.SettingTypeGuiProviders.StringGuiProvider();
+                yield return (T)(object)new Plugins.SettingTypeGuiProviders.BoolGuiProvider();
             }
         }
     }

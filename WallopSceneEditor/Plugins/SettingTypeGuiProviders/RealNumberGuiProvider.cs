@@ -14,6 +14,10 @@ using WallopSceneEditor.Services;
 
 namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 {
+    /// <summary>
+    /// Represents a numerical value.
+    /// Accepts the following arguments:
+    /// </summary>
     public class RealNumberGuiProvider : ISettingTypeGuiProvider
     {
         public string TypeName => "real";
@@ -78,7 +82,7 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 
         public async Task<bool> OnShowPopoutDialogAsync(IWindowService windowService, ISettingValue value, IEnumerable<KeyValuePair<string, string>>? settingArgs)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             return false;
         }
     }

@@ -9,7 +9,12 @@ using ReactiveUI;
 
 namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 {
-    internal class FileGuiProvider : ISettingTypeGuiProvider
+    /// <summary>
+    /// Represents a file value.
+    /// Accepts the following arguments:
+    /// filter="Config files;ini,cfg,txt"
+    /// </summary>
+    public class FileGuiProvider : ISettingTypeGuiProvider
     {
         public string TypeName => "file";
 

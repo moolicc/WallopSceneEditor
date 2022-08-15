@@ -13,6 +13,8 @@ using WallopSceneEditor.Models;
 using Wallop.Shared.Modules;
 using DynamicData;
 using Wallop.Shared.Modules.SettingTypes;
+using WallopSceneEditor.Models.EventData;
+using WallopSceneEditor.Models.EventData.Mutator;
 
 namespace WallopSceneEditor.ViewModels.Tools
 {
@@ -117,7 +119,7 @@ namespace WallopSceneEditor.ViewModels.Tools
             }
         }
 
-        private void mutator_OnPropertyContextChanged(object? sender, ValueChangedEventArgs<object?> e)
+        private void mutator_OnPropertyContextChanged(object? sender, MutatorValueChangedEventArgs<object?> e)
         {
             Settings.Clear();
             KeyValues.Clear();
@@ -151,6 +153,28 @@ namespace WallopSceneEditor.ViewModels.Tools
                 ModuleGridVisible = true;
 
                 this.RaisePropertyChanged(nameof(Settings));
+            }
+            else if(_mutator.PropertyContext is LayoutContext layout)
+            {
+                var ro = new KeyValuePair<string, string>("readonly", "false");
+
+                var nameVm = new PropertyKeyValueViewModel("Name", layout.Layout.Name, $"The layout's name.", new[] { ro }, new StringGuiProvider(), (kvp) =>
+                {
+                    _mutator.RenameLayout(layout.Layout.Name, kvp.Value);
+                    _mutator.ValidatePropertyContextAsLayout();
+                });
+                var activeVm = new PropertyKeyValueViewModel("Active", layout.Layout.Active.ToString(), $"Whether or not the layout is active.", null, new BoolGuiProvider(), (kvp) =>
+                {
+                    layout.Layout.Active = bool.Parse(kvp.Value);
+                    _mutator.ValidatePropertyContextAsLayout();
+                });
+
+                KeyValues.Add(nameVm);
+                KeyValues.Add(activeVm);
+                ModuleGridVisible = false;
+                KeyValueGridVisible = true;
+
+                this.RaisePropertyChanged(nameof(KeyValues));
             }
             else
             {

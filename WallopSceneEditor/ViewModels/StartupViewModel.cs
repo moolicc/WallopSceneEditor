@@ -220,6 +220,7 @@ namespace WallopSceneEditor.ViewModels
 
         protected override void OnActivate()
         {
+            NotificationHelper.WindowService = _windowService;
             LoadRecentFiles();
             SetProcessList();
         }

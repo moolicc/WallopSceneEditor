@@ -7,9 +7,10 @@ namespace WallopSceneEditor.Views
 {
     public partial class SceneTreeItemView : Avalonia.ReactiveUI.ReactiveUserControl<ViewModels.ItemViewModel>
     {
-        public event Action<SceneTreeItemView, string>? OnItemRenamed;
+        public event Action<SceneTreeItemView, string, string>? OnItemRenamed;
 
         private string _textBeforeEdit;
+        private TextBox _editBox; 
 
         public SceneTreeItemView()
         {
@@ -19,7 +20,8 @@ namespace WallopSceneEditor.Views
 
             this.LostFocus += SceneTreeItemView_LostFocus;
             this.FindControl<TextBlock>("NodeTextBlock").DoubleTapped += NameBlock_PointerPressed;
-            this.FindControl<TextBox>("NodeTextBox").KeyDown += NameBox_KeyDown;
+            _editBox = this.FindControl<TextBox>("NodeTextBox");
+            _editBox.KeyDown += NameBox_KeyDown;
         }
 
         private void InitializeComponent()
@@ -31,22 +33,20 @@ namespace WallopSceneEditor.Views
         {
             if (ViewModel != null && !ViewModel.EditingText)
             {
-                ViewModel.EditingText = true;
+                _editBox.Text = ViewModel.NodeText;
+                _textBeforeEdit = ViewModel.NodeText;
 
-                var textbox = this.FindControl<TextBox>("NodeTextBox");
-                _textBeforeEdit = textbox.Text;
-                textbox.Focus();
-                textbox.SelectAll();
+                ViewModel.EditingText = true;
+                _editBox.Focus();
+                _editBox.SelectAll();
             }
         }
 
         private void SceneTreeItemView_LostFocus(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            if (ViewModel != null)
+            if (ViewModel != null && ViewModel.EditingText)
             {
-                ViewModel.EditingText = false;
-                ViewModel.SetToolTip(ViewModel.NodeText);
-                OnItemRenamed?.Invoke(this, _textBeforeEdit);
+                EndTextEdit();
             }
         }
 
@@ -54,15 +54,24 @@ namespace WallopSceneEditor.Views
         {
             if (e.Key == Avalonia.Input.Key.Escape && ViewModel != null && ViewModel.EditingText)
             {
-                ViewModel.NodeText = _textBeforeEdit;
                 ViewModel.EditingText = false;
             }
             else if (e.Key == Avalonia.Input.Key.Enter && ViewModel != null && ViewModel.EditingText)
             {
-                ViewModel.EditingText = false;
-                ViewModel.SetToolTip(ViewModel.NodeText);
-                OnItemRenamed?.Invoke(this, _textBeforeEdit);
+                EndTextEdit();
             }
+        }
+
+        private void EndTextEdit()
+        {
+            if(ViewModel == null)
+            {
+                return;
+            }
+
+            var newText = _editBox.Text;
+            ViewModel.EditingText = false;
+            OnItemRenamed?.Invoke(this, _textBeforeEdit, newText);
         }
     }
 }

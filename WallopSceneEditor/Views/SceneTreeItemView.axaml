@@ -34,7 +34,7 @@
 
 			<Canvas>
 				<TextBlock Canvas.Left="0" Canvas.Top="0" IsVisible="{Binding !EditingText}" Name="NodeTextBlock" Text="{Binding NodeText}"></TextBlock>
-				<TextBox Canvas.Left="0" Canvas.Top="0" IsVisible="{Binding EditingText}" Name="NodeTextBox" Text="{Binding NodeText, Mode=TwoWay}"></TextBox>
+				<TextBox Canvas.Left="0" Canvas.Top="0" IsVisible="{Binding EditingText}" Name="NodeTextBox" Text=""></TextBox>
 			</Canvas>
 		</StackPanel>
 	</Panel>

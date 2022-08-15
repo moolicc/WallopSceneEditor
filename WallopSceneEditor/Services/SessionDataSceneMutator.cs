@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,17 +8,25 @@ using System.Xml.Linq;
 using Wallop.Shared.ECS;
 using Wallop.Shared.Modules;
 using WallopSceneEditor.Models;
+using WallopSceneEditor.Models.EventData;
+using WallopSceneEditor.Models.EventData.Mutator;
+using static Avalonia.Media.Transformation.TransformOperation.DataLayout;
+
 namespace WallopSceneEditor.Services
 {
     public class SessionDataSceneMutator : ISceneMutator
     {
+        public event EventHandler<MutatorValueChangedEventArgs<object?>>? OnPropertyContextChanged;
+        public event LayoutAdded? OnLayoutAdded;
+        
         public event EventHandler<DirectorEventArgs>? OnDirectorAdded;
         public event EventHandler<ActorEventArgs>? OnActorAdded;
         public event EventHandler<ActorEventArgs>? OnValidateActor;
         public event EventHandler<DirectorEventArgs>? OnValidateDirector;
-        public event LayoutAdded? OnLayoutAdded;
-        public event EventHandler<ValueChangedEventArgs<object?>>? OnPropertyContextChanged;
 
+        public event EventHandler<MutatorValueChangedEventArgs<string>>? OnLayoutRenamed;
+        public event EventHandler<MutatorValueChangedEventArgs<string>>? OnDirectorRenamed;
+        public event EventHandler<ActorValueChangedEventArgs<string>>? OnActorRenamed;
 
         public ISceneMutatorContext? PropertyContext
         {
@@ -28,7 +37,7 @@ namespace WallopSceneEditor.Services
                 {
                     var oldValue = _propertyContext;
                     _propertyContext = value;
-                    OnPropertyContextChanged?.Invoke(this, new ValueChangedEventArgs<object?>(oldValue));
+                    OnPropertyContextChanged?.Invoke(this, new MutatorValueChangedEventArgs<object?>(oldValue, value));
                 }
             }
         }
@@ -36,8 +45,6 @@ namespace WallopSceneEditor.Services
 
         private SessionDataModel _sessionData;
         private ISceneMutatorContext? _propertyContext;
-
-            
 
 
         public SessionDataSceneMutator(SessionDataModel sessionData)
@@ -50,7 +57,7 @@ namespace WallopSceneEditor.Services
             var moduleInfo = BreakdownModulePath(modulePath);
 
             var failed = true;
-            var messages = new List<string>();
+            var messages = new List<Message>();
             var newActor = new StoredModule()
             {
                 InstanceName = name
@@ -69,26 +76,27 @@ namespace WallopSceneEditor.Services
                         newActor.ModuleId = module.ModuleInfo.Id;
                         if (ValidateSettings(newActor.Settings, module.ModuleSettings))
                         {
+                            failed = false;
                         }
                         else
                         {
-                            messages.Add("Missing one or more required settings.");
+                            messages.Add(new Message("Actor", name, "Missing one or more required settings.", MessageType.Warning));
                         }
 
                     }
                     else
                     {
-                        messages.Add("Module not found.");
+                        messages.Add(new Message("Actor", name, "Module not found.", MessageType.Warning));
                     }
                 }
                 else
                 {
-                    messages.Add("Package not found.");
+                    messages.Add(new Message("Actor", name, "Package not found.", MessageType.Warning));
                 }
             }
             else
             {
-                messages.Add("Module not specified.");
+                messages.Add(new Message("Actor", name, "Module not specified.", MessageType.Warning));
                 moduleInfo = ("", "");
             }
 
@@ -101,7 +109,7 @@ namespace WallopSceneEditor.Services
             var moduleInfo = BreakdownModulePath(modulePath);
 
             var failed = true;
-            var messages = new List<string>();
+            var messages = new List<Message>();
 
             var newDirector = new StoredModule()
             {
@@ -126,22 +134,22 @@ namespace WallopSceneEditor.Services
                         }
                         else
                         {
-                            messages.Add("Missing one or more required settings.");
+                            messages.Add(new Message("Director", name, "Missing one or more required settings.", MessageType.Warning));
                         }
                     }
                     else
                     {
-                        messages.Add("Module not found.");
+                        messages.Add(new Message("Director", name, "Module not found.", MessageType.Warning));
                     }
                 }
                 else
                 {
-                    messages.Add("Package not found.");
+                    messages.Add(new Message("Director", name, "Package not found.", MessageType.Warning));
                 }
             }
             else
             {
-                messages.Add("Module not specified.");
+                messages.Add(new Message("Director", name, "Module not specified.", MessageType.Warning));
                 moduleInfo = ("", "");
             }
 
@@ -155,31 +163,84 @@ namespace WallopSceneEditor.Services
             OnLayoutAdded?.Invoke(name);
         }
 
-        public void RenameDirector(string directorName, string newName)
+        public bool RenameDirector(string directorName, string newName)
         {
             var currentDirector = FindDirector(directorName, out _);
-            if (currentDirector != null)
+            var newDirector = FindDirector(directorName, out _);
+
+            var result = false;
+            var messages = new List<Message>();
+
+            if (currentDirector != null && newDirector == null)
             {
                 currentDirector.InstanceName = newName;
+                result = true;
             }
+            else if (currentDirector == null)
+            {
+                messages.Add(new Message("Director", directorName, "Director not found.", MessageType.Warning));
+            }
+            else if (newDirector != null)
+            {
+                messages.Add(new Message("Director", directorName, "A director with that name already exists.", MessageType.Warning));
+            }
+
+            OnDirectorRenamed?.Invoke(this, new MutatorValueChangedEventArgs<string>(directorName, newName, !result) { Messages = messages });
+
+            return result;
         }
 
-        public void RenameActor(string parentLayout, string actorName, string newName)
+        public bool RenameActor(string parentLayout, string actorName, string newName)
         {
             var currentActor = FindActor(parentLayout, actorName, out _, out _);
-            if(currentActor != null)
+            var newActor = FindActor(parentLayout, newName, out _, out _);
+
+            var result = false;
+            var messages = new List<Message>();
+
+            if (currentActor != null && newActor == null)
             {
                 currentActor.InstanceName = newName;
+                result = true;
             }
+            else if (currentActor == null)
+            {
+                messages.Add(new Message("Actor", actorName, "Actor not found.", MessageType.Warning));
+            }
+            else if (newActor != null)
+            {
+                messages.Add(new Message("Actor", actorName, "An actor with that name already exists.", MessageType.Warning));
+            }
+
+            OnActorRenamed?.Invoke(this, new ActorValueChangedEventArgs<string>(actorName, newName, !result, parentLayout) { Messages = messages });
+
+            return result;
         }
 
-        public void RenameLayout(string layoutName, string newName)
+        public bool RenameLayout(string layoutName, string newName)
         {
             var currentLayout = FindLayout(layoutName, out _);
-            if (currentLayout != null)
+            var newLayout = FindLayout(newName, out _);
+
+            var result = false;
+            var messages = new List<Message>();
+
+            if (currentLayout != null && newLayout == null)
             {
                 currentLayout.Name = newName;
+                result = true;
             }
+            else if(currentLayout == null)
+            {
+                messages.Add(new Message("Layout", layoutName, "Layout not found.", MessageType.Warning));
+            }
+            else if (newLayout != null)
+            {
+                messages.Add(new Message("Layout", layoutName, "A layout with that name already exists.", MessageType.Warning));
+            }
+
+            OnLayoutRenamed?.Invoke(this, new MutatorValueChangedEventArgs<string>(layoutName, newName, !result) { Messages = messages } );
+            return result;
         }
         public StoredModule? FindActor(string parentLayout, string actorName)
             => FindActor(parentLayout, actorName, out _, out _);
@@ -293,6 +354,10 @@ namespace WallopSceneEditor.Services
             {
                 ValidatePropertyContextAsActor(actor);
             }
+            else if(PropertyContext is DirectorContext director)
+            {
+                ValidatePropertyContextAsDirector(director);
+            }
         }
 
         public void ClearPropertyContext()
@@ -305,7 +370,7 @@ namespace WallopSceneEditor.Services
             var moduleInfo = FindModuleInfo(actor.RelatedModule.ModuleId);
 
             var failed = true;
-            var messages = new List<string>();
+            var messages = new List<Message>();
 
             if (moduleInfo.HasValue)
             {
@@ -315,15 +380,41 @@ namespace WallopSceneEditor.Services
                 }
                 else
                 {
-                    messages.Add("Missing one or more required settings.");
+                    messages.Add(new Message("Actor", actor.RelatedModule.InstanceName, "Missing one or more required settings.", MessageType.Warning));
                 }
             }
             else
             {
-                messages.Add("Module or package not found.");
+                messages.Add(new Message("Actor", actor.RelatedModule.InstanceName, "Module or package not found.", MessageType.Warning));
             }
 
             OnValidateActor?.Invoke(this, new ActorEventArgs(moduleInfo?.Package.Info.ManifestPath ?? "", actor.RelatedModule.ModuleId, actor.ParentLayout, actor.RelatedModule.InstanceName, failed, messages.ToArray()));
+        }
+
+        private void ValidatePropertyContextAsDirector(DirectorContext director)
+        {
+            var moduleInfo = FindModuleInfo(director.RelatedModule.ModuleId);
+
+            var failed = true;
+            var messages = new List<Message>();
+
+            if (moduleInfo.HasValue)
+            {
+                if (ValidateSettings(director.RelatedModule.Settings, moduleInfo.Value.Module.ModuleSettings))
+                {
+                    failed = false;
+                }
+                else
+                {
+                    messages.Add(new Message("Director", director.RelatedModule.InstanceName, "Missing one or more required settings.", MessageType.Warning));
+                }
+            }
+            else
+            {
+                messages.Add(new Message("Director", director.RelatedModule.InstanceName, "Module or package not found.", MessageType.Warning));
+            }
+
+            OnValidateDirector?.Invoke(this, new DirectorEventArgs(moduleInfo?.Package.Info.ManifestPath ?? "", director.RelatedModule.ModuleId, director.RelatedModule.InstanceName, failed, messages.ToArray()));
         }
 
         private (Package Package, Module Module)? FindModuleInfo(string module)
@@ -339,6 +430,11 @@ namespace WallopSceneEditor.Services
                 }
             }
             return null;
+        }
+
+        public void ValidatePropertyContextAsLayout()
+        {
+
         }
     }
 }

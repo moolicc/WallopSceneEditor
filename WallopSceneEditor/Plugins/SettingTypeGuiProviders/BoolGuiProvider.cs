@@ -9,30 +9,30 @@ using WallopSceneEditor.Services;
 namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 {
     /// <summary>
-    /// Represents a string value.
+    /// Represents a boolean value.
     /// Accepts the following arguments:
     /// readonly=[true/false]
-    /// length=[integer]
+    /// header="myheader"
     /// </summary>
-    public class StringGuiProvider : ISettingTypeGuiProvider
+    public class BoolGuiProvider : ISettingTypeGuiProvider
     {
-        public string TypeName => "string";
+        public string TypeName => "boolean";
 
         public bool HandlesPopoutDialog => false;
 
 
+
         public Control GetInlineDisplayControl(ISettingValue value, IEnumerable<KeyValuePair<string, string>>? settingArgs)
         {
-            var readOnly = true;
-            var maxLength = SettingGuiProviderExtensions.GetValue<int?>(settingArgs, "length") ?? int.MaxValue;
+            var isReadonly = true;
+            var header = SettingGuiProviderExtensions.GetValue<string>(settingArgs, "header") ?? "";
 
-            var vm = SettingGuiProviderExtensions.GetLinkedViewModel<StringViewModel>(value, nameof(StringViewModel.Text));
-            vm.Readonly = readOnly;
-            vm.MaxLength = maxLength;
+            var vm = SettingGuiProviderExtensions.GetLinkedViewModel<BoolViewModel>(value, nameof(BoolViewModel.SelectedValue));
+            vm.Readonly = isReadonly;
+            vm.Header = header;
             vm.UnderlyingValue = value;
 
-            var control = new StringControl();
-
+            var control = new BoolControl();
             control.DataContext = vm;
 
             return control;
@@ -40,16 +40,15 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 
         public Control? GetInlineEditControl(ISettingValue value, IEnumerable<KeyValuePair<string, string>>? settingArgs)
         {
-            var readOnly = SettingGuiProviderExtensions.GetValue<bool?>(settingArgs, "readonly") ?? true;
-            var maxLength = SettingGuiProviderExtensions.GetValue<int?>(settingArgs, "length") ?? int.MaxValue;
+            var isReadonly = SettingGuiProviderExtensions.GetValue<bool?>(settingArgs, "readonly") ?? false;
+            var header = SettingGuiProviderExtensions.GetValue<string>(settingArgs, "header") ?? "";
 
-            var vm = SettingGuiProviderExtensions.GetLinkedViewModel<StringViewModel>(value, nameof(StringViewModel.Text));
-            vm.Readonly = readOnly;
-            vm.MaxLength = maxLength;
+            var vm = SettingGuiProviderExtensions.GetLinkedViewModel<BoolViewModel>(value, nameof(BoolViewModel.SelectedValue));
+            vm.Readonly = isReadonly;
+            vm.Header = header;
             vm.UnderlyingValue = value;
-
-            var control = new StringControl();
-
+            
+            var control = new BoolControl();
             control.DataContext = vm;
 
             return control;

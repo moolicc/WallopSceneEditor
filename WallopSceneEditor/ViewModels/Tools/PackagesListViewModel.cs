@@ -30,20 +30,47 @@ namespace WallopSceneEditor.ViewModels.Tools
                     name = $"New {modulePath.Substring(modulePath.IndexOf('>') + 1)}";
                 }
 
+                name = FindName(name, s => sceneMutator.FindDirector(s) != null);
                 sceneMutator.AddDirector(modulePath ?? "", name);
             });
 
             AddActorCommand = ReactiveCommand.Create((string? modulePath) =>
             {
-                var name = "New director";
+                var name = "New actor";
                 if (modulePath != null)
                 {
                     name = $"New {modulePath.Substring(modulePath.IndexOf('>') + 1)}";
                 }
 
                 var layout = getOrCreateActiveLayoutCallback();
+                name = FindName(name, s => sceneMutator.FindActor(layout, s) != null);
+
                 sceneMutator.AddActor(layout, modulePath ?? "", name);
             });
+        }
+
+        // Note: This function is an exact replica of the function of the same name in the SceneTreeViewModel.
+        private string FindName(string baseName, Func<string, bool> exists)
+        {
+            string Cat(string name, int? number)
+            {
+                if (!number.HasValue)
+                    return name;
+                return $"{name} {number.Value}";
+            }
+
+            int? number = null;
+
+            while (exists(Cat(baseName, number)))
+            {
+                if (!number.HasValue)
+                {
+                    number = 0;
+                }
+                number++;
+            }
+
+            return Cat(baseName, number);
         }
     }
 }

@@ -77,6 +77,7 @@ namespace WallopSceneEditor.ViewModels
             var appSettings = _settings.GetSettingsAsync().Result;
             SessionData = new SessionDataModel(scene, appSettings.PackageDirectory);
             SessionMutator = new SessionDataSceneMutator(SessionData);
+            NotificationHelper.HookMutator(SessionMutator);
         }
 
         protected override void OnActivate()

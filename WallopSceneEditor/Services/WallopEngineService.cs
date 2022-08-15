@@ -12,6 +12,7 @@ using Wallop.Shared.Messaging;
 using Wallop.Shared.Messaging.Messages;
 using Wallop.IPC;
 using Wallop.Shared.Messaging.Remoting;
+using Wallop.Shared.ECS;
 
 namespace WallopSceneEditor.Services
 {

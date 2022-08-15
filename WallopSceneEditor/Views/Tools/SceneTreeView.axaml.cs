@@ -91,9 +91,9 @@ namespace WallopSceneEditor.Views.Tools
             }
         }
 
-        private void OnItemRenamed(SceneTreeItemView item, string oldName)
+        private void OnItemRenamed(SceneTreeItemView item, string oldName, string newName)
         {
-            ViewModel?.RenameItem(item.ViewModel, oldName);
+            ViewModel?.RenameItem(item.ViewModel, oldName, newName);
         }
 
         public void ExpandTo(ViewModels.ItemViewModel itemVm)

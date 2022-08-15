@@ -10,6 +10,11 @@ using WallopSceneEditor.Services;
 
 namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 {
+    /// <summary>
+    /// Represents a value based on a discrete number of options.
+    /// Accepts the following arguments:
+    /// option="Label|underlying_value"
+    /// </summary>
     public class ChoiceGuiProvider : ISettingTypeGuiProvider
     {
         public string TypeName => "choice";
@@ -80,7 +85,7 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 
         public async Task<bool> OnShowPopoutDialogAsync(IWindowService windowService, ISettingValue value, IEnumerable<KeyValuePair<string, string>>? settingArgs)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             return false;
         }
     }
