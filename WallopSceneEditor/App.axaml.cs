@@ -50,6 +50,7 @@ namespace WallopSceneEditor
             di.Add<ISettingsService, JsonSettingsService>(new JsonSettingsService());
             di.Add<ISceneService, JsonSceneService>(new JsonSceneService());
             di.Add<IEngineService, WallopEngineService>(new WallopEngineService());
+            di.Add<IPluginService, HardCodedPluginService>(new HardCodedPluginService());
         }
     }
 }

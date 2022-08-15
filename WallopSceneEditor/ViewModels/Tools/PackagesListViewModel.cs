@@ -18,7 +18,7 @@ namespace WallopSceneEditor.ViewModels.Tools
         public ICommand AddDirectorCommand { get; set; }
         public ICommand AddActorCommand { get; set; }
 
-        public PackagesListViewModel(ISceneMutator sceneMutator, Func<string> getActiveLayoutCallback)
+        public PackagesListViewModel(ISceneMutator sceneMutator, Func<string> getOrCreateActiveLayoutCallback)
         {
             Packages = new ObservableCollection<ItemViewModel>();
 
@@ -41,7 +41,7 @@ namespace WallopSceneEditor.ViewModels.Tools
                     name = $"New {modulePath.Substring(modulePath.IndexOf('>') + 1)}";
                 }
 
-                var layout = getActiveLayoutCallback();
+                var layout = getOrCreateActiveLayoutCallback();
                 sceneMutator.AddActor(layout, modulePath ?? "", name);
             });
         }

@@ -18,7 +18,7 @@ namespace WallopSceneEditor.Views
             _textBeforeEdit = "";
 
             this.LostFocus += SceneTreeItemView_LostFocus;
-            this.FindControl<TextBlock>("NodeTextBlock").DoubleTapped += NameBlock_PointerPressed; ;
+            this.FindControl<TextBlock>("NodeTextBlock").DoubleTapped += NameBlock_PointerPressed;
             this.FindControl<TextBox>("NodeTextBox").KeyDown += NameBox_KeyDown;
         }
 

@@ -13,7 +13,7 @@
 			<Button Margin="8,8,4,0" Width="32" Height="32" Foreground="Green" i:Attached.Icon="mdi-shape-plus" ToolTip.Tip="Add layout" Command="{Binding AddLayoutCommand}"></Button>
 			<Button Margin="8,8,0,0" Width="32" Height="32" Foreground="Green" i:Attached.Icon="fa-solid fa-masks-theater" ToolTip.Tip="Add actor" Command="{Binding AddActorCommand}"></Button>
 		</StackPanel>
-		<TreeView Grid.Row="1" Margin="2" Items="{Binding Modules}" SelectionMode="Single" SelectionChanged="Tree_SelectionChanged" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+		<TreeView Name="TreeView" Grid.Row="1" Margin="2" Items="{Binding Modules}" SelectionMode="Single" SelectionChanged="Tree_SelectionChanged" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 			<TreeView.DataTemplates>
 				<TreeDataTemplate DataType="vm:ItemViewModel" ItemsSource="{Binding Children}">
 

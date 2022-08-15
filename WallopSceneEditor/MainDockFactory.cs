@@ -27,11 +27,15 @@ namespace WallopSceneEditor
         private IDocumentDock _documentDock;
         private readonly SessionDataModel _context;
         private readonly ISceneMutator _sceneMutator;
+        private IWindowService _windowService;
+        private IPluginService _pluginService;
 
-        public MainDockFactory(SessionDataModel dataModel, ISceneMutator mutator)
+        public MainDockFactory(SessionDataModel dataModel, ISceneMutator mutator, IWindowService windowService, IPluginService pluginService)
         {
             _context = dataModel;
             _sceneMutator = mutator;
+            _windowService = windowService;
+            _pluginService = pluginService;
         }
 
         public override IRootDock CreateLayout()
@@ -46,14 +50,14 @@ namespace WallopSceneEditor
 
 
 
-            var sceneTree = new SceneTreeViewModel(_sceneMutator)
+            var sceneTree = new SceneTreeViewModel(_sceneMutator, _windowService)
             {
                 Id = "SceneTree",
                 Title = "Scene Tree",
                 SceneTreeRoot = BuildSceneTree(_context.LoadedScene)
             };
 
-            var packagesList = new PackagesListViewModel(_sceneMutator, () => sceneTree.ActiveLayout?.NodeText ?? "")
+            var packagesList = new PackagesListViewModel(_sceneMutator, () => sceneTree.GetOrCreateActiveLayout())
             {
                 Id = "PackagesList",
                 Title = "Packages",
@@ -61,10 +65,10 @@ namespace WallopSceneEditor
             };
 
 
-            var propertiesTable = new PropertiesViewModel
+            var propertiesTable = new PropertiesViewModel(_sceneMutator, _pluginService, _windowService, _context)
             {
                 Id = "PropertiesTable",
-                Title = "Properties"
+                Title = "Properties",
             };
 
             var output = new OutputViewModel

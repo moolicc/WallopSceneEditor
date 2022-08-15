@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Wallop.Shared.ECS;
 using Wallop.Shared.Modules;
 using WallopSceneEditor.Models;
@@ -13,9 +13,32 @@ namespace WallopSceneEditor.Services
     {
         public event EventHandler<DirectorEventArgs>? OnDirectorAdded;
         public event EventHandler<ActorEventArgs>? OnActorAdded;
+        public event EventHandler<ActorEventArgs>? OnValidateActor;
+        public event EventHandler<DirectorEventArgs>? OnValidateDirector;
         public event LayoutAdded? OnLayoutAdded;
+        public event EventHandler<ValueChangedEventArgs<object?>>? OnPropertyContextChanged;
+
+
+        public ISceneMutatorContext? PropertyContext
+        {
+            get => _propertyContext;
+            set
+            {
+                if(_propertyContext != value)
+                {
+                    var oldValue = _propertyContext;
+                    _propertyContext = value;
+                    OnPropertyContextChanged?.Invoke(this, new ValueChangedEventArgs<object?>(oldValue));
+                }
+            }
+        }
+
 
         private SessionDataModel _sessionData;
+        private ISceneMutatorContext? _propertyContext;
+
+            
+
 
         public SessionDataSceneMutator(SessionDataModel sessionData)
         {
@@ -28,6 +51,10 @@ namespace WallopSceneEditor.Services
 
             var failed = true;
             var messages = new List<string>();
+            var newActor = new StoredModule()
+            {
+                InstanceName = name
+            };
 
             if (moduleInfo.HasValue)
             {
@@ -39,16 +66,9 @@ namespace WallopSceneEditor.Services
 
                     if (module != null)
                     {
-                        var newActor = new StoredModule()
+                        newActor.ModuleId = module.ModuleInfo.Id;
+                        if (ValidateSettings(newActor.Settings, module.ModuleSettings))
                         {
-                            InstanceName = name,
-                            ModuleId = module.ModuleInfo.Id
-                        };
-                        
-                        if(ValidateSettings(newActor.Settings, module.ModuleSettings))
-                        {
-                            FindLayout(parentLayout, out _)?.ActorModules.Add(newActor);
-                            failed = false;
                         }
                         else
                         {
@@ -72,6 +92,7 @@ namespace WallopSceneEditor.Services
                 moduleInfo = ("", "");
             }
 
+            FindLayout(parentLayout, out _)?.ActorModules.Add(newActor);
             OnActorAdded?.Invoke(this, new ActorEventArgs(moduleInfo.Value.Package, moduleInfo.Value.Module, parentLayout, name, failed, messages.ToArray()));
         }
 
@@ -81,6 +102,11 @@ namespace WallopSceneEditor.Services
 
             var failed = true;
             var messages = new List<string>();
+
+            var newDirector = new StoredModule()
+            {
+                InstanceName = name,
+            };
 
             if (moduleInfo.HasValue)
             {
@@ -92,15 +118,10 @@ namespace WallopSceneEditor.Services
 
                     if (module != null)
                     {
-                        var newDirector = new StoredModule()
-                        {
-                            InstanceName = name,
-                            ModuleId = module.ModuleInfo.Id
-                        };
+                        newDirector.ModuleId = module.ModuleInfo.Id;
 
                         if (ValidateSettings(newDirector.Settings, module.ModuleSettings))
                         {
-                            _sessionData.LoadedScene.DirectorModules.Add(newDirector);
                             failed = false;
                         }
                         else
@@ -124,6 +145,7 @@ namespace WallopSceneEditor.Services
                 moduleInfo = ("", "");
             }
 
+            _sessionData.LoadedScene.DirectorModules.Add(newDirector);
             OnDirectorAdded?.Invoke(this, new DirectorEventArgs(moduleInfo.Value.Package, moduleInfo.Value.Module, name, failed, messages.ToArray()));
         }
 
@@ -159,7 +181,14 @@ namespace WallopSceneEditor.Services
                 currentLayout.Name = newName;
             }
         }
+        public StoredModule? FindActor(string parentLayout, string actorName)
+            => FindActor(parentLayout, actorName, out _, out _);
 
+        public StoredLayout? FindLayout(string layoutName)
+            => FindLayout(layoutName, out _);
+
+        public StoredModule? FindDirector(string directorName)
+            => FindDirector(directorName, out _);
 
         private bool ValidateSettings(List<StoredSetting> activeSettings, IEnumerable<ModuleSetting> moduleSettings)
         {
@@ -234,6 +263,81 @@ namespace WallopSceneEditor.Services
             }
 
             index = -1;
+            return null;
+        }
+
+
+        public void SetPropertyContextToActor(string parentLayout, string actorName)
+        {
+            PropertyContext = new ActorContext(FindActor(parentLayout, actorName, out _, out _), parentLayout);
+        }
+
+        public void SetPropertyContextToDirector(string directorName)
+        {
+            PropertyContext = new DirectorContext(FindDirector(directorName, out _));
+        }
+
+        public void SetPropertyContextToScene(string sceneName)
+        {
+            PropertyContext = new SceneContext(_sessionData.LoadedScene);
+        }
+
+        public void SetPropertyContextToLayout(string layoutName)
+        {
+            PropertyContext = new LayoutContext(FindLayout(layoutName, out _));
+        }
+
+        public void ValidatePropertyContextAsModule()
+        {
+            if(PropertyContext is ActorContext actor)
+            {
+                ValidatePropertyContextAsActor(actor);
+            }
+        }
+
+        public void ClearPropertyContext()
+        {
+            PropertyContext = null;
+        }
+
+        private void ValidatePropertyContextAsActor(ActorContext actor)
+        {
+            var moduleInfo = FindModuleInfo(actor.RelatedModule.ModuleId);
+
+            var failed = true;
+            var messages = new List<string>();
+
+            if (moduleInfo.HasValue)
+            {
+                if (ValidateSettings(actor.RelatedModule.Settings, moduleInfo.Value.Module.ModuleSettings))
+                {
+                    failed = false;
+                }
+                else
+                {
+                    messages.Add("Missing one or more required settings.");
+                }
+            }
+            else
+            {
+                messages.Add("Module or package not found.");
+            }
+
+            OnValidateActor?.Invoke(this, new ActorEventArgs(moduleInfo?.Package.Info.ManifestPath ?? "", actor.RelatedModule.ModuleId, actor.ParentLayout, actor.RelatedModule.InstanceName, failed, messages.ToArray()));
+        }
+
+        private (Package Package, Module Module)? FindModuleInfo(string module)
+        {
+            foreach (var pkg in _sessionData.Packages)
+            {
+                foreach (var mod in pkg.DeclaredModules)
+                {
+                    if (mod.ModuleInfo.Id == module)
+                    {
+                        return (pkg, mod);
+                    }
+                }
+            }
             return null;
         }
     }

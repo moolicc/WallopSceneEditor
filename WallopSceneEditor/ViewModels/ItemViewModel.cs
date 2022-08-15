@@ -26,7 +26,11 @@ namespace WallopSceneEditor.ViewModels
         public ItemTypes Type { get; set; }
         public string Tag { get; set; }
         public string Icon { get; set; }
-        public bool HasError { get; private set; }
+        public bool HasError
+        {
+            get => _hasError;
+            set => this.RaiseAndSetIfChanged(ref _hasError, value);
+        }
 
         public string Description { get; set; }
 
@@ -57,6 +61,7 @@ namespace WallopSceneEditor.ViewModels
         public Action<ItemViewModel>? OnRenamedCallback;
 
         private string _nodeText;
+        private bool _hasError;
         private bool _editingText;
         private bool _itemSelected;
         private ItemToolTipViewModel _toolTip;
@@ -91,6 +96,12 @@ namespace WallopSceneEditor.ViewModels
             this.RaisePropertyChanged(nameof(Children));
         }
 
+
+        public void Rename(string newName)
+        {
+            OnRenamedCallback?.Invoke(this);
+        }
+
         public void SetError(string errorMessage)
         {
             if (string.IsNullOrEmpty(errorMessage))
@@ -104,9 +115,10 @@ namespace WallopSceneEditor.ViewModels
             HasError = true;
         }
 
-        public void Rename(string newName)
+        public void ClearError()
         {
-            OnRenamedCallback?.Invoke(this);
+            HasError = false;
+            _toolTip.ErrorMessage = null;
         }
 
         public void SetToolTip(string description)
@@ -127,6 +139,13 @@ namespace WallopSceneEditor.ViewModels
                     _toolTip.Module = split[1];
                 }
             }
+        }
+
+        public void UpdateModulePath(string path, string instanceName)
+        {
+            Tag = path;
+            NodeText = instanceName;
+            SetToolTip(instanceName, path);
         }
 
         public static ItemViewModel CreateScene(string sceneName, string sceneFile)

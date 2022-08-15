@@ -9,20 +9,36 @@ using System.Globalization;
 using System;
 using WallopSceneEditor.ViewModels.Tools;
 using Avalonia.Input;
+using Avalonia.VisualTree;
+using Avalonia.Visuals;
 
 namespace WallopSceneEditor.Views.Tools
 {
 
     public partial class SceneTreeView : ReactiveUserControl<SceneTreeViewModel>
     {
+        private TreeView _treeView;
+
         public SceneTreeView()
         {
             InitializeComponent();
+
+            _treeView = this.FindControl<TreeView>("TreeView");
+            _treeView.AutoScrollToSelectedItem = true;
         }
 
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        protected override void OnDataContextChanged(EventArgs e)
+        {
+            base.OnDataContextChanged(e);
+            if(ViewModel != null)
+            {
+                ViewModel.OnExpandToItem = ExpandTo;
+            }
         }
 
         private void Tree_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -78,6 +94,47 @@ namespace WallopSceneEditor.Views.Tools
         private void OnItemRenamed(SceneTreeItemView item, string oldName)
         {
             ViewModel?.RenameItem(item.ViewModel, oldName);
+        }
+
+        public void ExpandTo(ViewModels.ItemViewModel itemVm)
+        {
+            return;
+            // TODO: Figure out a way to do this.
+            var children = _treeView.GetVisualDescendants();
+
+            foreach (var child in children)
+            {
+                if(child is TreeViewItem item)
+                {
+                    if(TryExpand(item, (ViewModels.ItemViewModel)item.DataContext, itemVm))
+                    {
+                        item.IsExpanded = true;
+                    }
+                }
+            }
+        }
+
+        private bool TryExpand(TreeViewItem parent, ViewModels.ItemViewModel parentVm, ViewModels.ItemViewModel targetVm)
+        {
+            if(parentVm == targetVm)
+            {
+                return true;
+            }
+            var children = parent.GetVisualDescendants();
+
+            foreach (var child in children)
+            {
+                if(child is SceneTreeItemView sceneTvItem && sceneTvItem.Parent is TreeViewItem tvItem)
+                {
+                    if(TryExpand(tvItem, sceneTvItem.ViewModel!, targetVm))
+                    {
+                        tvItem.IsExpanded = true;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

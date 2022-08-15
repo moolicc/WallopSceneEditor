@@ -19,5 +19,20 @@ namespace WallopSceneEditor.Models
             LoadedScene = loadedScene;
             Packages = PackageLoader.LoadPackages(packageDir);
         }
+
+        public Module? FindModule(StoredModule stored)
+        {
+            foreach (var pkg in Packages)
+            {
+                foreach (var mod in pkg.DeclaredModules)
+                {
+                    if(mod.ModuleInfo.Id == stored.ModuleId)
+                    {
+                        return mod;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

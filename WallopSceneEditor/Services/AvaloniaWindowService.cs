@@ -4,11 +4,9 @@ using Avalonia.Threading;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using WallopSceneEditor.Models;
 using WallopSceneEditor.ViewModels;
+using Avalonia.Controls.Notifications;
 
 namespace WallopSceneEditor.Services
 {
@@ -23,6 +21,8 @@ namespace WallopSceneEditor.Services
 
         private IDependencyInjection _dependencyInjection;
         private Stack<Window> _dialogStack;
+        private WindowNotificationManager _notifyManager;
+
 
         public AvaloniaWindowService(IClassicDesktopStyleApplicationLifetime desktop, IDependencyInjection dependencyInjection)
         {
@@ -33,6 +33,12 @@ namespace WallopSceneEditor.Services
 
             _dialogStack = new Stack<Window>();
             _dialogStack.Push(MainWindow);
+
+            _notifyManager = new WindowNotificationManager(MainWindow)
+            {
+                Position = NotificationPosition.TopRight,
+                MaxItems = 3
+            };
         }
 
         public T ResolveView_Inject<T>() where T : ViewModelBase
@@ -75,7 +81,7 @@ namespace WallopSceneEditor.Services
 
             if(viewModel is SceneEditViewModel edit)
             {
-                var factory = new MainDockFactory(edit.SessionData, edit.SessionMutator);
+                var factory = new MainDockFactory(edit.SessionData, edit.SessionMutator, this, _dependencyInjection.Resolve<IPluginService>());
                 var layout = factory.CreateLayout();
                 factory.InitLayout(layout);
 
@@ -101,7 +107,7 @@ namespace WallopSceneEditor.Services
 
                 with?.Invoke(dialog);
 
-                return await sysDialog.ShowAsync(_dialogStack.Peek());
+                return await sysDialog.ShowAsync(_dialogStack.Peek()).ConfigureAwait(false);
             }
             else if (typeof(TDialog).IsAssignableFrom(typeof(OpenFileDialog)))
             {
@@ -115,7 +121,7 @@ namespace WallopSceneEditor.Services
 
                 with?.Invoke(dialog);
 
-                return (await sysDialog.ShowAsync(_dialogStack.Peek()))?[0];
+                return (await sysDialog.ShowAsync(_dialogStack.Peek()).ConfigureAwait(false))?[0];
             }
             else if (typeof(TDialog).IsAssignableFrom(typeof(OpenFolderDialog)))
             {
@@ -129,7 +135,7 @@ namespace WallopSceneEditor.Services
 
                 with?.Invoke(dialog);
 
-                return await sysDialog.ShowAsync(_dialogStack.Peek());
+                return await sysDialog.ShowAsync(_dialogStack.Peek()).ConfigureAwait(false);
             }
 
             throw new InvalidCastException($"Invalid dialog type. Valid types are: {nameof(Avalonia.Controls.SaveFileDialog)}, {nameof(OpenFileDialog)}, and {nameof(Avalonia.Controls.OpenFolderDialog)}");
@@ -157,13 +163,33 @@ namespace WallopSceneEditor.Services
                 var parent = _dialogStack.Peek();
 
                 _dialogStack.Push(win);
-                var result = await win.ShowDialog<TResult>(parent);
+                var result = await win.ShowDialog<TResult>(parent).ConfigureAwait(false);
 
                 _dialogStack.Pop();
 
                 return result;
             }
             throw new InvalidCastException("Invalid type specified.");
+        }
+
+        public void ShowNotification(string title, string text, NotificationTypes notificationType = NotificationTypes.Information, Action? onClick = null, Action? onClose = null)
+        {
+            var duration = TimeSpan.FromSeconds(7);
+            var notifType = (NotificationType)notificationType;
+
+            HandleUi(() => _notifyManager.Show(new Notification(title, text, notifType, duration, onClick, onClose)));
+        }
+
+        private void HandleUi(Action action)
+        {
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                action();
+            }
+            else
+            {
+                Dispatcher.UIThread.Post(action);
+            }
         }
     }
 }

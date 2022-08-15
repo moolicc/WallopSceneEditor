@@ -2,27 +2,113 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:WallopSceneEditor.ViewModels.Tools;assembly=WallopSceneEditor"
+			 xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="WallopSceneEditor.Views.Tools.PropertiesView">
 
-	<Grid Margin="2" RowDefinitions="*,1,75">
+	<Grid RowDefinitions="4*,1,*">
 
-		<DataGrid Grid.Row="0" MinHeight="100" Items="{Binding Properties}">
+		<!-- Module Setting DataGrid -->
+		<DataGrid Grid.Row="0" IsVisible="{Binding ModuleGridVisible}" SelectedItem="{Binding SelectedSetting, Mode=TwoWay}" Name="ModuleGrid" Items="{Binding Settings}" CanUserResizeColumns="True">
 			<DataGrid.Columns>
-				<DataGridCheckBoxColumn Header="Required" Binding="{Binding Required}"></DataGridCheckBoxColumn>
-				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
-				<DataGridTextColumn Header="Value" Binding="{Binding Value}"></DataGridTextColumn>
-				<DataGridTextColumn Header="Type" Binding="{Binding Type}"></DataGridTextColumn>
+				<DataGridCheckBoxColumn IsReadOnly="True" Header="Required" Binding="{Binding Required}"></DataGridCheckBoxColumn>
+				<DataGridTextColumn Width="*" IsReadOnly="True" Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
+				<DataGridTemplateColumn Width="*" Header="Value">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate DataType="vm:PropertySettingViewModel">
+							
+							<Grid ColumnDefinitions="*,20,20">
+								<ContentControl Grid.Column="0" Content="{Binding DisplayControl}"></ContentControl>
+
+								<Button Grid.Column="1" ToolTip.Tip="Revert to default" Background="Transparent" Tag="{Binding}" Click="SettingRevertClicked">
+									<Viewbox Stretch="Uniform" Width="12" Height="12">
+										<i:Icon Value="mdi-undo-variant" Width="16" Height="16"></i:Icon>
+									</Viewbox>
+								</Button>
+								<Button Grid.Column="2" ToolTip.Tip="Edit..." Background="Transparent" Click="SettingEditClicked">
+									<Viewbox Stretch="Uniform" Width="12" Height="12">
+										<i:Icon Value="mdi-pencil-outline" Width="16" Height="16"></i:Icon>
+									</Viewbox>
+									<Button.Flyout>
+										<Flyout>
+											<Grid RowDefinitions="20,*" ColumnDefinitions="20,*">
+												<i:Icon Grid.Row="0" Grid.Column="0" Value="mdi-pencil-outline" Width="16" Height="16"></i:Icon>
+												<TextBlock Margin="10,0,0,0" Grid.Row="0" Grid.Column="1" FontWeight="Bold">Set value</TextBlock>
+												<ContentControl Margin="10" Grid.Row="1" Grid.Column="1" Content="{Binding PopupEditControl}"></ContentControl>
+											</Grid>
+										</Flyout>
+									</Button.Flyout>
+								</Button>
+							</Grid>
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+					<DataGridTemplateColumn.CellEditingTemplate>
+						<DataTemplate DataType="vm:PropertySettingViewModel">
+							<ContentControl Content="{Binding EditControl}"></ContentControl>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellEditingTemplate>
+				</DataGridTemplateColumn>
+				<DataGridTextColumn IsReadOnly="True" Header="Type" Binding="{Binding Type}"></DataGridTextColumn>
 			</DataGrid.Columns>
 		</DataGrid>
-		
+
+		<!-- Key/Value DataGrid -->
+		<DataGrid Grid.Row="0" IsVisible="{Binding KeyValueGridVisible}" SelectedItem="{Binding SelectedKeyValue, Mode=TwoWay}" Name="KeyValueGrid" Items="{Binding KeyValues}" CanUserResizeColumns="True">
+			<DataGrid.Columns>
+				<DataGridTextColumn Width="*" IsReadOnly="True" Header="Key" Binding="{Binding Key}"></DataGridTextColumn>
+				<DataGridTemplateColumn Width="*" Header="Value">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate DataType="vm:PropertySettingViewModel">
+
+							<Grid ColumnDefinitions="*,20,20">
+								<ContentControl Grid.Column="0" Content="{Binding DisplayControl}"></ContentControl>
+
+								<Button Grid.Column="1" ToolTip.Tip="Revert to default" Background="Transparent" Tag="{Binding}" Click="SettingRevertClicked">
+									<Viewbox Stretch="Uniform" Width="12" Height="12">
+										<i:Icon Value="mdi-undo-variant" Width="16" Height="16"></i:Icon>
+									</Viewbox>
+								</Button>
+								<Button Grid.Column="2" ToolTip.Tip="Edit..." Background="Transparent" Click="SettingEditClicked">
+									<Viewbox Stretch="Uniform" Width="12" Height="12">
+										<i:Icon Value="mdi-pencil-outline" Width="16" Height="16"></i:Icon>
+									</Viewbox>
+									<Button.Flyout>
+										<Flyout>
+											<Grid RowDefinitions="20,*" ColumnDefinitions="20,*">
+												<i:Icon Grid.Row="0" Grid.Column="0" Value="mdi-pencil-outline" Width="16" Height="16"></i:Icon>
+												<TextBlock Margin="10,0,0,0" Grid.Row="0" Grid.Column="1" FontWeight="Bold">Set value</TextBlock>
+												<ContentControl Margin="10" Grid.Row="1" Grid.Column="1" Content="{Binding PopupEditControl}"></ContentControl>
+											</Grid>
+										</Flyout>
+									</Button.Flyout>
+								</Button>
+							</Grid>
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+					<DataGridTemplateColumn.CellEditingTemplate>
+						<DataTemplate DataType="vm:PropertySettingViewModel">
+							<ContentControl Content="{Binding EditControl}"></ContentControl>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellEditingTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+
 		<GridSplitter Grid.Row="1" ResizeDirection="Rows"></GridSplitter>
 
 		<Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="LightGray" Background="GhostWhite">
-			<TextBlock Text="Details go here..."></TextBlock>
+
+			<StackPanel Orientation="Vertical">
+				<TextBlock Margin="8" FontWeight="Bold" Text="Description"></TextBlock>
+				<TextBlock Margin="16,0,16,16" FontStyle="Italic" Text="{Binding SelectedDescription}"></TextBlock>
+			</StackPanel>
+			
 		</Border>
-		
-		
+
 	</Grid>
 	
 </UserControl>
