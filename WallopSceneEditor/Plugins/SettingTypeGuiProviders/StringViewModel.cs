@@ -15,7 +15,7 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
         {
             get
             {
-                return UnderlyingValue.Value;
+                return UnderlyingValue.Value ?? ViewModels.Tools.PropertySettingViewModel.NIL_VALUE;
             }
             set
             {

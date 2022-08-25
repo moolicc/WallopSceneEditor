@@ -10,8 +10,7 @@ namespace WallopSceneEditor.Plugins
 {
     public interface ISettingValue : INotifyPropertyChanged
     {
-        string Value { get; set; }
+        string? Value { get; set; }
         object? SettingCache { get; set; }
-
     }
 }

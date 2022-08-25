@@ -12,6 +12,8 @@ namespace WallopSceneEditor.Services
 {
     internal class AvaloniaWindowService : IWindowService
     {
+        public static AvaloniaWindowService? Instance;
+
         public IClassicDesktopStyleApplicationLifetime Desktop { get; private set; }
         public Window MainWindow { get; init; }
         public IntPtr WindowHandle => MainWindow.PlatformImpl.Handle.Handle;
@@ -26,6 +28,8 @@ namespace WallopSceneEditor.Services
 
         public AvaloniaWindowService(IClassicDesktopStyleApplicationLifetime desktop, IDependencyInjection dependencyInjection)
         {
+            Instance = this;
+
             Desktop = desktop;
             MainWindow = desktop.MainWindow;
             Screens = new Dictionary<string, IScreen>();

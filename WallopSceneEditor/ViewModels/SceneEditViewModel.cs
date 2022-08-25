@@ -14,18 +14,10 @@ namespace WallopSceneEditor.ViewModels
 {
     public class SceneEditViewModel : ViewModelBase
     {
-        public ObservableCollection<string> OutputList { get; set; }
-
         public string? AttachedProcessText
         {
             get => _attachedProcessText;
             set => this.RaiseAndSetIfChanged(ref _attachedProcessText, value);
-        }
-
-        public int SelectedOutputItem
-        {
-            get => _selectedOutputItem;
-            set => this.RaiseAndSetIfChanged(ref _selectedOutputItem, value);
         }
 
         public IFactory Factory
@@ -51,7 +43,6 @@ namespace WallopSceneEditor.ViewModels
 
 
         private string? _attachedProcessText = "AttachedProcess:";
-        private int _selectedOutputItem;
 
         private IDock _layout;
         private string _currentView;
@@ -69,13 +60,13 @@ namespace WallopSceneEditor.ViewModels
             _settings = settings;
             _engineService = engineService;
             _windowService = windowService;
-            OutputList = new ObservableCollection<string>();
         }
 
-        public void CreateSession(Wallop.Shared.ECS.StoredScene scene)
+        public void CreateSession(Wallop.Shared.ECS.StoredScene scene, int? engineProcId)
         {
             var appSettings = _settings.GetSettingsAsync().Result;
             SessionData = new SessionDataModel(scene, appSettings.PackageDirectory);
+            SessionData.EngineProcessId = engineProcId;
             SessionMutator = new SessionDataSceneMutator(SessionData);
             NotificationHelper.HookMutator(SessionMutator);
         }
@@ -84,20 +75,43 @@ namespace WallopSceneEditor.ViewModels
         {
             if(!_loading)
             {
+                OutputHelper.Log<SceneEditViewModel>("Beginning setup");
                 var appSettings = _settings.GetSettingsAsync().Result;
+
                 _loading = true;
                 // TODO: If we are using an existing engine instance.
+                
+                // TODO: Allow layout activation/deactivation key/value property setting.
+
+                // TODO: Add module dependency verification for incoming StoredScene as well as list of packages.
+
+                // TODO: Allow editing without a backing engine instance.
 
 
                 // TODO: If we're not using an existing engine instance.
                 //_engineService.StartProcess(_windowService.WindowHandle.ToString(), appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
-                //var proc = _engineService.GetEngineProcess()!;
-
-                //AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
-
-                //proc.Exited += Proc_Exited;
 
 
+                // Setup communication with the Engine.
+                if(SessionData.EngineProcessId != null)
+                {
+                    _engineService.HookProcess(SessionData.EngineProcessId.Value);
+                }
+                else
+                {
+                    _engineService.StartProcess("", appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
+                }
+                var proc = _engineService.GetEngineProcess()!;
+                proc.Exited += Proc_Exited;
+
+                _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
+
+                AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
+
+                SceneMutationBridge.Engine = _engineService;
+                SceneMutationBridge.Mutator = SessionMutator;
+                SceneMutationBridge.EngineTruth = new Wallop.Shared.ECS.StoredScene();
+                SceneMutationBridge.Enable();
 
                 //_engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
             }
@@ -115,13 +129,7 @@ namespace WallopSceneEditor.ViewModels
             {
                 return;
             }
-            AddToOutputList(e.Data ?? "");
-        }
-
-        private void AddToOutputList(string line)
-        {
-            OutputList.Add(line);
-            SelectedOutputItem = OutputList.Count - 1;
+            OutputHelper.Log(e.Data, context: "Engine");
         }
     }
 }

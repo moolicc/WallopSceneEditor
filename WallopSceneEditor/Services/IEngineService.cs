@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wallop.Shared.ECS;
+using Wallop.Shared.Messaging.Messages;
 using WallopSceneEditor.Models;
 
 namespace WallopSceneEditor.Services
@@ -16,5 +17,9 @@ namespace WallopSceneEditor.Services
         void ShutdownProcess();
 
         Task<bool> ConnectAsync(string myName, string hostName, string machine = ".");
+
+        Task<bool> SendMessageAsync<T>(T message) where T : struct;
+        Task<MessageReply?> SendMessageExpectReplyAsync<T>(T message)
+            where T : struct;
     }
 }

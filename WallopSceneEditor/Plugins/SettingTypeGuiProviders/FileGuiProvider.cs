@@ -55,7 +55,10 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
                 d.Filters = filters?.Select(f => new FileDialogFilter() { Name = f.Label, Extensions = new List<string>(f.Extensions) }).ToList();
             }).ConfigureAwait(false);
 
-            value.Value = file;
+            if (file != null)
+            {
+                value.Value = file;
+            }            
             return true;
         }
 

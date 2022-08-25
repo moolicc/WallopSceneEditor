@@ -23,7 +23,7 @@ namespace WallopSceneEditor.Views.Tools
         private void SettingRevertClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var button = sender as Button;
-            if(button == null)
+            if(ViewModel == null || button == null)
             {
                 return;
             }
@@ -34,7 +34,7 @@ namespace WallopSceneEditor.Views.Tools
                 return;
             }
 
-            vm.RevertValue();
+            ViewModel.RevertValue(vm);
         }
 
         private async void SettingEditClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

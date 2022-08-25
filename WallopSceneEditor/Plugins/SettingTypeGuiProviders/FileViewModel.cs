@@ -11,12 +11,12 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
     {
         public ISettingValue UnderlyingValue { get; set; }
 
-        public string SelectedFile
+        public string? SelectedFile
         {
-            get => _selectedFile;
-            set => this.RaiseAndSetIfChanged(ref _selectedFile, value);
+            get => _selectedFile ?? ViewModels.Tools.PropertySettingViewModel.NIL_VALUE;
+            set => this.RaiseAndSetIfChanged(ref _selectedFile, string.IsNullOrEmpty(value) ? null : value);
         }
-        private string _selectedFile;
+        private string? _selectedFile;
 
         public FileViewModel(ISettingValue underlyingValue)
         {

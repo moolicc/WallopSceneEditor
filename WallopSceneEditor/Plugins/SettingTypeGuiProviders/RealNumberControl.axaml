@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="WallopSceneEditor.Plugins.SettingTypeGuiProviders.RealNumberControl">
 	<Panel>
-		<NumericUpDown IsVisible="{Binding !ReadOnly}" Value="{Binding WorkingValue, Mode=TwoWay}"></NumericUpDown>
+		<NumericUpDown IsVisible="{Binding !ReadOnly}" Value="{Binding WorkingValue, Mode=TwoWay}" LostFocus="NumericUpDown_LostFocus"></NumericUpDown>
 		<TextBlock Margin="6,0,0,0" IsVisible="{Binding ReadOnly}" VerticalAlignment="Center" Text="{Binding WorkingValue}"></TextBlock>
 	</Panel>
 	

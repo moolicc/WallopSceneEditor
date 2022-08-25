@@ -61,7 +61,7 @@
 						<Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
 
 							<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,4,0,0" Text="Use currently loaded scene"></TextBlock>
-							<ComboBox Grid.Row="1" Grid.Column="0" Margin="0,4,0,4" HorizontalAlignment="Stretch" Items="{Binding OtherProcesses}" SelectionChanged="OtherProcsSelectedChanged">
+							<ComboBox Grid.Row="1" Grid.Column="0" Margin="0,4,0,4" HorizontalAlignment="Stretch" Items="{Binding OtherProcesses}" SelectedItem="{Binding SelectedOtherProcess, Mode=TwoWay}" SelectionChanged="OtherProcsSelectedChanged">
 								<ComboBox.ItemTemplate>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">

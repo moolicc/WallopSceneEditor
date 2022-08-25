@@ -61,7 +61,7 @@ namespace WallopSceneEditor.ViewModels.Tools
                 var name = FindName("New layout", s => _sceneMutator!.FindLayout(s) != null);
                 sceneMutator.AddLayout(name);
 
-                NotificationHelper.Notify(new Models.Message("Layout", name, "New layout created.", Models.MessageType.Success));
+                NotificationHelper.Notify(new Models.Message("Layout", name, "Layout created with default parameters.\nPlease specify correct parameters.", Models.MessageType.Warning));
             });
             AddActorCommand = ReactiveCommand.Create((string? modulePath) =>
             {
@@ -76,6 +76,7 @@ namespace WallopSceneEditor.ViewModels.Tools
 
             });
 
+            sceneMutator.OnValidatedLayout += SceneMutator_OnValidatedLayout;
             sceneMutator.OnDirectorAdded += SceneMutator_OnDirectorAdded;
             sceneMutator.OnLayoutAdded += SceneMutator_OnLayoutAdded;
             sceneMutator.OnActorAdded += SceneMutator_OnActorAdded;
@@ -90,6 +91,8 @@ namespace WallopSceneEditor.ViewModels.Tools
 
             _sceneMutator = sceneMutator;
         }
+
+
 
         private void SceneMutator_OnDirectorRenamed(object? sender, MutatorValueChangedEventArgs<string> e)
         {
@@ -197,10 +200,17 @@ namespace WallopSceneEditor.ViewModels.Tools
             SelectedItem = newDir;
         }
 
-        private void SceneMutator_OnLayoutAdded(string layoutName)
+        private void SceneMutator_OnLayoutAdded(object? sender, LayoutEventArgs e)
         {
-            var newLayout = ItemViewModel.CreateLayout(layoutName);
+            var newLayout = ItemViewModel.CreateLayout(e.LayoutName);
             ActiveLayout = newLayout;
+
+            if (e.HasError)
+            {
+                newLayout.SetError(string.Join(' ', e.Messages.Select(m => m.Text)));
+                NotificationHelper.Notify(e.Messages[0]);
+            }
+
             SceneTreeRoot.AddChild(newLayout);
             SelectedItem = newLayout;
         }
@@ -222,6 +232,31 @@ namespace WallopSceneEditor.ViewModels.Tools
 
             ActiveLayout!.AddChild(newActor);
             SelectAndExpandItem(newActor);
+        }
+
+        private void SceneMutator_OnValidatedLayout(object? sender, LayoutEventArgs e)
+        {
+            var entry = SceneTreeRoot.Children.FirstOrDefault(c => c.NodeText == e.LayoutName);
+
+            if (entry == null)
+            {
+                return;
+            }
+
+            entry.UpdateModulePath("", e.LayoutName);
+            if (!e.HasError)
+            {
+                if (entry.HasError)
+                {
+                    NotificationHelper.Notify(new Models.Message("Layout", e.LayoutName, "Layout validated successfully.", Models.MessageType.Success));
+                }
+                entry.ClearError();
+            }
+            else
+            {
+                entry.SetError(string.Join(' ', e.Messages.Select(m => m.Text)));
+                NotificationHelper.Notify(e.Messages[0]);
+            }
         }
 
         private void SceneMutator_OnValidateActor(object? sender, ActorEventArgs e)

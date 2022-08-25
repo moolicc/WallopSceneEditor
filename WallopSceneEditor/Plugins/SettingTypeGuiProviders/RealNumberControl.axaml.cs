@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
+using System;
 
 namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
 {
@@ -15,6 +17,11 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        public void NumericUpDown_LostFocus(object? sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetValue();
         }
     }
 }

@@ -22,7 +22,7 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
         {
             get
             {
-                if (bool.TryParse(UnderlyingValue.Value, out var b))
+                if (bool.TryParse(UnderlyingValue.Value ?? "false", out var b))
                 {
                     return b;
                 }

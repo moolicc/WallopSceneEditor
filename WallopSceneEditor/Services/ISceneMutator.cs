@@ -12,20 +12,16 @@ using WallopSceneEditor.Models.EventData.Mutator;
 namespace WallopSceneEditor.Services
 {
 
-
-
-    public delegate void LayoutAdded(string layoutName);
-
-
     public interface ISceneMutator
     {
         event EventHandler<MutatorValueChangedEventArgs<object?>>? OnPropertyContextChanged;
 
+        event EventHandler<LayoutEventArgs>? OnLayoutAdded;
         event EventHandler<DirectorEventArgs>? OnDirectorAdded;
         event EventHandler<ActorEventArgs>? OnActorAdded;
+        event EventHandler<LayoutEventArgs>? OnValidatedLayout;
         event EventHandler<ActorEventArgs>? OnValidateActor;
         event EventHandler<DirectorEventArgs>? OnValidateDirector;
-        event LayoutAdded? OnLayoutAdded;
 
         event EventHandler<MutatorValueChangedEventArgs<string>>? OnLayoutRenamed;
         event EventHandler<MutatorValueChangedEventArgs<string>>? OnDirectorRenamed;

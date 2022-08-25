@@ -17,10 +17,11 @@ namespace WallopSceneEditor.Services
     public class SessionDataSceneMutator : ISceneMutator
     {
         public event EventHandler<MutatorValueChangedEventArgs<object?>>? OnPropertyContextChanged;
-        public event LayoutAdded? OnLayoutAdded;
-        
+
+        public event EventHandler<LayoutEventArgs>? OnLayoutAdded;
         public event EventHandler<DirectorEventArgs>? OnDirectorAdded;
         public event EventHandler<ActorEventArgs>? OnActorAdded;
+        public event EventHandler<LayoutEventArgs>? OnValidatedLayout;
         public event EventHandler<ActorEventArgs>? OnValidateActor;
         public event EventHandler<DirectorEventArgs>? OnValidateDirector;
 
@@ -159,8 +160,49 @@ namespace WallopSceneEditor.Services
 
         public void AddLayout(string name)
         {
+            var newLayout = new StoredLayout();
+            newLayout.Name = name;
+            newLayout.RenderWidth = 0;
+            newLayout.RenderHeight = 0;
+            newLayout.ScreenIndex = 0;
+
+            var screens = AvaloniaWindowService.Instance.MainWindow.Screens;
+
+            var messages = new List<Message>();
+            var failed = true;
+
+            if (newLayout.ScreenIndex > screens.ScreenCount + 1)
+            {
+                messages.Add(new Message("Layout", newLayout.Name, "Invalid screen specified.", MessageType.Warning));
+            }
+            else
+            {
+                Avalonia.PixelRect bounds;
+                if (newLayout.ScreenIndex == 0)
+                {
+                    // TODO: build-up bounds.
+                    bounds = new Avalonia.PixelRect();
+                }
+                else
+                {
+                    bounds = screens.All[newLayout.ScreenIndex - 1].Bounds;
+                }
+
+                if (newLayout.RenderWidth > bounds.Width
+                    || newLayout.RenderHeight > bounds.Height
+                    || newLayout.RenderWidth <= 0
+                    || newLayout.RenderHeight <= 0)
+                {
+                    messages.Add(new Message("Layout", newLayout.Name, "Invalid render space specified.", MessageType.Warning));
+                }
+                else
+                {
+                    failed = false;
+                }
+            }
+
             _sessionData.LoadedScene.Layouts.Add(new StoredLayout() { Name = name });
-            OnLayoutAdded?.Invoke(name);
+            OnLayoutAdded?.Invoke(this, new LayoutEventArgs(name) {  HasError = failed, Messages = messages });
         }
 
         public bool RenameDirector(string directorName, string newName)
@@ -253,11 +295,12 @@ namespace WallopSceneEditor.Services
 
         private bool ValidateSettings(List<StoredSetting> activeSettings, IEnumerable<ModuleSetting> moduleSettings)
         {
+            // TODO: If a setting is set to null, check the upcoming module.Nullable.
             foreach (var item in moduleSettings)
             {
                 if(item.Required)
                 {
-                    if(!activeSettings.Any(a => a.Name == item.SettingName))
+                    if(!activeSettings.Any(a => a.Name == item.SettingName && a.Value != null))
                     {
                         return false;
                     }
@@ -360,6 +403,55 @@ namespace WallopSceneEditor.Services
             }
         }
 
+        public void ValidatePropertyContextAsLayout()
+        {
+            // TODO: Validate screen, render size, and presentation bounds.
+            if(AvaloniaWindowService.Instance == null)
+            {
+                return;
+            }
+
+            var failed = true;
+            var messages = new List<Message>();
+            if (PropertyContext is LayoutContext layout)
+            {
+                var screens = AvaloniaWindowService.Instance.MainWindow.Screens;
+
+                if (layout.Layout.ScreenIndex > screens.ScreenCount + 1)
+                {
+                    messages.Add(new Message("Layout", layout.Layout.Name, "Invalid screen specified.", MessageType.Warning));
+                }
+                else
+                {
+                    Avalonia.PixelRect bounds;
+                    if (layout.Layout.ScreenIndex == 0)
+                    {
+                        // TODO: build-up bounds.
+                        bounds = new Avalonia.PixelRect();
+                    }
+                    else
+                    {
+                        bounds = screens.All[layout.Layout.ScreenIndex - 1].Bounds;
+                    }
+
+                    if (layout.Layout.RenderWidth > bounds.Width
+                        || layout.Layout.RenderHeight > bounds.Height
+                        || layout.Layout.RenderWidth <= 0
+                        || layout.Layout.RenderHeight <= 0)
+                    {
+                        messages.Add(new Message("Layout", layout.Layout.Name, "Invalid render space specified.", MessageType.Warning));
+                    }
+                    else
+                    {
+                        failed = false;
+                    }
+                }
+
+                OnValidatedLayout?.Invoke(this, new LayoutEventArgs(layout.Layout.Name) { HasError = failed, Messages = messages });
+            }
+
+        }
+
         public void ClearPropertyContext()
         {
             PropertyContext = null;
@@ -432,9 +524,5 @@ namespace WallopSceneEditor.Services
             return null;
         }
 
-        public void ValidatePropertyContextAsLayout()
-        {
-
-        }
     }
 }

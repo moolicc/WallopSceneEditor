@@ -127,5 +127,27 @@ namespace WallopSceneEditor.Services
             var json = JsonSerializer.Serialize(jsonModel);
             File.WriteAllText(filepath, json);
         }
+
+        public async Task<bool> SendMessageAsync<T>(T message) where T : struct
+        {
+            return await SendMessageExpectReplyAsync(message).ConfigureAwait(false) != null;
+        }
+
+        public async Task<MessageReply?> SendMessageExpectReplyAsync<T>(T message)
+            where T : struct
+        {
+            return await Task.Run<MessageReply?>(async () =>
+            {
+                await _msgClient.BeginAsync().ConfigureAwait(false);
+                var id = _messenger.Put(message);
+                var res = _messenger.TryGetReply<MessageReply>(id, out var reply);
+                await _msgClient.EndAsync().ConfigureAwait(false);
+                if (!res)
+                {
+                    return null;
+                }
+                return reply;
+            }).ConfigureAwait(false);
+        }
     }
 }

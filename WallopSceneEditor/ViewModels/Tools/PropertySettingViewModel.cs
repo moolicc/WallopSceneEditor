@@ -20,13 +20,14 @@ namespace WallopSceneEditor.ViewModels.Tools
             get => _name;
             set => this.RaiseAndSetIfChanged(ref _name, value);
         }
-        public string Value
+        public string? Value
         {
             get => _value;
             set
             {
                 this.RaiseAndSetIfChanged(ref _value, value);
-                BoundSetting.Value = value;
+                BoundSetting.Value = value ?? NIL_VALUE;
+                _valueChangedCallback(new KeyValuePair<string, string?>(Name, value));
             }
         }
         public string Type
@@ -65,36 +66,36 @@ namespace WallopSceneEditor.ViewModels.Tools
 
         public ISettingTypeGuiProvider GuiProvider { get; private set; }
         public object? SettingCache { get; set; }
-        public IEnumerable<KeyValuePair<string, string>>? SettingArgs { get; init; }
+        public IEnumerable<KeyValuePair<string, string?>>? SettingArgs { get; init; }
 
         public StoredSetting BoundSetting { get; init; }
 
+        public string? InitialValue => _startingValue;
+
         private string _name;
-        private string _value;
+        private string? _value;
         private string _type;
         private bool _required;
         private bool _hasDefaultValue;
 
-        private string _startingValue;
+        private string? _startingValue;
+        private Action<KeyValuePair<string, string?>> _valueChangedCallback;
 
 
 
-        public PropertySettingViewModel(StoredSetting boundSetting, IEnumerable<KeyValuePair<string, string>>? settingArgs, string name, string description, string value, string type, bool required, ISettingTypeGuiProvider guiProvider)
+        public PropertySettingViewModel(StoredSetting boundSetting, IEnumerable<KeyValuePair<string, string>>? settingArgs, string name, string? initialValue, string description, string? value, string type, bool required, ISettingTypeGuiProvider guiProvider, Action<KeyValuePair<string, string?>> onValueChangedCallback)
         {
             _name = name;
             Description = description;
             _value = value;
             _type = type;
             _required = required;
-            _startingValue = value;
+            _startingValue = initialValue;
             GuiProvider = guiProvider;
             BoundSetting = boundSetting;
             SettingArgs = settingArgs;
-        }
 
-        public void RevertValue()
-        {
-            Value = _startingValue;
+            _valueChangedCallback = onValueChangedCallback;
         }
     }
 }

@@ -108,13 +108,19 @@ namespace WallopSceneEditor.ViewModels
         public int SelectedTab
         {
             get => _selectedTab;
-            set => this.RaiseAndSetIfChanged(ref _selectedTab, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedTab, value);
+                HandleSelectedTabChanged();
+            }
         }
         private int _selectedTab = 0;
 
 
 
         public ObservableCollection<ProcessItemViewModel> OtherProcesses { get; set; }
+
+        public ProcessItemViewModel? SelectedOtherProcess { get; set; }
 
         public string OtherProcSceneName
         {
@@ -134,6 +140,7 @@ namespace WallopSceneEditor.ViewModels
         private IWindowService _windowService;
         private ISceneService _sceneService;
         private bool _loadingRecents;
+        private bool _loadingProcs;
         private bool _deactivating;
 
         internal StartupViewModel(ISettingsService settingsService, IWindowService windowService, ISceneService sceneService)
@@ -148,14 +155,13 @@ namespace WallopSceneEditor.ViewModels
 
             BeginEditCommand = ReactiveCommand.Create(() =>
             {
-                if (SceneName == null)
+                int? otherProcId = null;
+                if(SelectedTab == 1 && SelectedOtherProcess != null)
                 {
-                    // TODO: Show error
-                    // Failed.
-                    return;
+                    otherProcId = SelectedOtherProcess.ProcessId;
                 }
                 var vm = _windowService.ResolveView_Inject<SceneEditViewModel>();
-                vm.CreateSession(_sceneService.CreateScene(SceneName, SelectedFile));
+                vm.CreateSession(_sceneService.CreateScene(SceneName!, SelectedFile), otherProcId);
 
                 _windowService.SwitchView("main", vm);
             });
@@ -169,6 +175,20 @@ namespace WallopSceneEditor.ViewModels
                 var result = await dialog.ShowDialog<bool?>((_windowService as AvaloniaWindowService)!.MainWindow);
             });
 
+        }
+
+        private void HandleSelectedTabChanged()
+        {
+            if(SelectedTab == 0)
+            {
+                ButtonText = "Create scene";
+                FileSelected(null);
+            }
+            else
+            {
+                ButtonText = "Edit scene";
+                SetProcessList();
+            }
         }
 
         public void FileSelected(Views.FilePicker? picker)
@@ -268,6 +288,11 @@ namespace WallopSceneEditor.ViewModels
 
         private void SetProcessList()
         {
+            if (_loadingProcs)
+            {
+                return;
+            }
+            _loadingProcs = true;
             var processes = Process.GetProcessesByName("wallop");
 
             foreach (var proc in processes)
@@ -285,6 +310,8 @@ namespace WallopSceneEditor.ViewModels
                     OtherProcesses.Remove(listedProc);
                 }
             }
+
+            _loadingProcs = false;
 
             this.RaisePropertyChanged(nameof(OtherProcesses));
         }

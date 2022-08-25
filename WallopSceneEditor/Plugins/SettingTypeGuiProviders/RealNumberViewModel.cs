@@ -23,17 +23,23 @@ namespace WallopSceneEditor.Plugins.SettingTypeGuiProviders
             }
             set
             {
-                UnderlyingValue.Value = value.ToString();
-                this.RaisePropertyChanged(nameof(WorkingValue));
+                _workingValue = value;
             }
         }
 
         public bool ReadOnly { get; set; }
 
+        private double _workingValue;
+
         public RealNumberViewModel(ISettingValue underlyingVm, bool readOnly)
         {
             UnderlyingValue = underlyingVm;
             ReadOnly = readOnly;
+        }
+
+        public void SetValue()
+        {
+            UnderlyingValue.Value = _workingValue.ToString();
         }
     }
 }
