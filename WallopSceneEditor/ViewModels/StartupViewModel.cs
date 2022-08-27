@@ -143,7 +143,7 @@ namespace WallopSceneEditor.ViewModels
         private bool _loadingProcs;
         private bool _deactivating;
 
-        internal StartupViewModel(ISettingsService settingsService, IWindowService windowService, ISceneService sceneService)
+        internal StartupViewModel(ISettingsService settingsService, IWindowService windowService, ISceneService sceneService, ISessionSetupService setup)
         {
             SelectedFile = settingsService.GetSettingsAsync().Result.SceneDirectory;
             _settingsService = settingsService;
@@ -160,10 +160,14 @@ namespace WallopSceneEditor.ViewModels
                 {
                     otherProcId = SelectedOtherProcess.ProcessId;
                 }
-                var vm = _windowService.ResolveView_Inject<SceneEditViewModel>();
-                vm.CreateSession(_sceneService.CreateScene(SceneName!, SelectedFile), otherProcId);
 
-                _windowService.SwitchView("main", vm);
+                setup.BoundEngineProcId = otherProcId;
+                setup.SceneFile = SelectedFile;
+
+                // TODO: Make this dynamically set.
+                setup.SceneSource = SceneSources.BoundEngine;
+
+                _windowService.SwitchView<SceneEditViewModel>("main");
             });
 
             ShowSettingsCommand = ReactiveCommand.Create(async () =>

@@ -83,16 +83,6 @@ namespace WallopSceneEditor.Services
                 viewModel.HostScreen = targetScreen;
             }
 
-            if(viewModel is SceneEditViewModel edit)
-            {
-                var factory = new MainDockFactory(edit.SessionData, edit.SessionMutator, this, _dependencyInjection.Resolve<IPluginService>());
-                var layout = factory.CreateLayout();
-                factory.InitLayout(layout);
-
-                edit.Factory = factory;
-                edit.Layout = layout;
-            }
-
             targetScreen.Router.Navigate.Execute(viewModel);
             return viewModel;
         }

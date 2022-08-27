@@ -338,7 +338,7 @@ namespace WallopSceneEditor
                         actorNode.Children.Add(setNode);
                     }
 
-                    root.Children.Add(actorNode);
+                    layoutNode.Children.Add(actorNode);
                 }
 
                 root.Children.Add(layoutNode);

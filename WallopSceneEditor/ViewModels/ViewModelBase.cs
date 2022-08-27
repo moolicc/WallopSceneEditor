@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WallopSceneEditor.ViewModels
 {
@@ -17,14 +18,16 @@ namespace WallopSceneEditor.ViewModels
         protected ViewModelBase()
         {
             Activator = new ViewModelActivator();
-            this.WhenActivated((CompositeDisposable d) =>
+            this.WhenActivated(async (CompositeDisposable d) =>
             {
                 OnActivate();
+                await OnActivateAsync();
                 Disposable.Create(() => OnDispose()).DisposeWith(d);
             });
         }
 
         protected virtual void OnActivate() { }
+        protected virtual async Task OnActivateAsync() { }
         protected virtual void OnDispose() { }
     }
 }

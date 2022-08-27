@@ -221,7 +221,7 @@ namespace WallopSceneEditor.Services
             else
             {
                 // TODO: Presentation bounds support.
-                Engine.SendMessageAsync(new LayoutChangeMessage(existingLayout.Name, newName, newScreen, newRenderSize, newPresentationBounds));
+                Engine.SendMessageAsync(new LayoutChangeMessage(existingLayout.Name, newName, newActive, newScreen, newRenderSize, newPresentationBounds));
             }
 
 

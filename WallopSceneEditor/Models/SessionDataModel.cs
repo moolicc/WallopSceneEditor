@@ -12,9 +12,7 @@ namespace WallopSceneEditor.Models
     {
         public int? EngineProcessId { get; set; }
 
-
         public StoredScene LoadedScene { get; set; }
-
         public IEnumerable<Package> Packages { get; set; }
 
         public SessionDataModel(StoredScene loadedScene, string packageDir)

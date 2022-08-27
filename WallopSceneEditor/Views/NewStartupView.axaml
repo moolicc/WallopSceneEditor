@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="WallopSceneEditor.Views.NewStartupView">
+
+	<Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+
+		<StackPanel Margin="8" Orientation="Vertical" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Grid.RowSpan="99">
+			<TextBlock Margin="0,0,0,4">Recent</TextBlock>
+			<ListBox VerticalAlignment="Stretch">test</ListBox>
+		</StackPanel>
+		
+		<StackPanel Margin="8,8,8,4" Grid.Column="1" Grid.Row="0" Orientation="Vertical">
+			<TextBlock Margin="0,0,0,4">Bind to engine</TextBlock>
+			<ComboBox HorizontalAlignment="Stretch"></ComboBox>
+			
+			<TextBlock Margin="0,8,0,4">Source</TextBlock>
+			<ListBox>
+				<ListBox.Items>
+					<ListBoxItem>File</ListBoxItem>
+					<ListBoxItem>Bound engine</ListBoxItem>
+				</ListBox.Items>
+			</ListBox>
+		</StackPanel>
+	</Grid>
+	
+</UserControl>

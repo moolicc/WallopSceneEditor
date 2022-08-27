@@ -26,6 +26,12 @@ namespace WallopSceneEditor.ViewModels.Tools
         public OutputViewModel()
         {
             Messages = new ObservableCollection<OutputLineViewModel>();
+
+            foreach (var msg in Services.OutputHelper.Backlog)
+            {
+                OutputHelper_OnLog(msg);
+            }
+
             Services.OutputHelper.OnLog += OutputHelper_OnLog;
         }
 

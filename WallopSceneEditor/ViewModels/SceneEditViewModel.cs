@@ -9,6 +9,10 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using Dock.Model.Core;
 using WallopSceneEditor.Models;
+using Wallop.Shared.Messaging.Messages;
+using Wallop.Shared.ECS;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace WallopSceneEditor.ViewModels
 {
@@ -38,6 +42,24 @@ namespace WallopSceneEditor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _currentView, value);
         }
 
+        public bool Loaded
+        {
+            get => _loaded;
+            set => this.RaiseAndSetIfChanged(ref _loaded, value);
+        }
+
+        public bool Loading
+        {
+            get => _loading;
+            set => this.RaiseAndSetIfChanged(ref _loading, value);
+        }
+
+        public string LoadingText
+        {
+            get => _loadingText;
+            set => this.RaiseAndSetIfChanged(ref _loadingText, value);
+        }
+
         public SessionDataModel SessionData { get; private set; }
         public SessionDataSceneMutator SessionMutator { get; private set; }
 
@@ -50,72 +72,133 @@ namespace WallopSceneEditor.ViewModels
 
 
         private bool _loading;
+        private bool _loaded;
+        private string _loadingText;
+
 
         private ISettingsService _settings;
         private IEngineService _engineService;
         private IWindowService _windowService;
+        private ISessionSetupService _setup;
+        private IPluginService _pluginService;
 
-        public SceneEditViewModel(ISettingsService settings, IEngineService engineService, IWindowService windowService)
+        public SceneEditViewModel(ISettingsService settings, IEngineService engineService, IWindowService windowService, ISessionSetupService setup, IPluginService pluginService)
         {
             _settings = settings;
             _engineService = engineService;
             _windowService = windowService;
+            _setup = setup;
+            _pluginService = pluginService;
         }
 
-        public void CreateSession(Wallop.Shared.ECS.StoredScene scene, int? engineProcId)
+        protected override async Task OnActivateAsync()
         {
-            var appSettings = _settings.GetSettingsAsync().Result;
-            SessionData = new SessionDataModel(scene, appSettings.PackageDirectory);
-            SessionData.EngineProcessId = engineProcId;
-            SessionMutator = new SessionDataSceneMutator(SessionData);
-            NotificationHelper.HookMutator(SessionMutator);
-        }
-
-        protected override void OnActivate()
-        {
-            if(!_loading)
+            if(_loading && !_loaded)
             {
-                OutputHelper.Log<SceneEditViewModel>("Beginning setup");
+                return;
+            }
+            Task.Factory.StartNew(async () =>
+            {
+                _loading = true;
+
+                LoadingText = "Loading application settings...";
+                OutputHelper.Log("Loading application settings...", "", "Setup");
                 var appSettings = _settings.GetSettingsAsync().Result;
 
-                _loading = true;
-                // TODO: If we are using an existing engine instance.
-                
-                // TODO: Allow layout activation/deactivation key/value property setting.
 
-                // TODO: Add module dependency verification for incoming StoredScene as well as list of packages.
-
-                // TODO: Allow editing without a backing engine instance.
-
-
-                // TODO: If we're not using an existing engine instance.
-                //_engineService.StartProcess(_windowService.WindowHandle.ToString(), appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
-
-
-                // Setup communication with the Engine.
-                if(SessionData.EngineProcessId != null)
+                if (_setup.BoundEngineProcId.HasValue)
                 {
-                    _engineService.HookProcess(SessionData.EngineProcessId.Value);
+                    if (_setup.BoundEngineProcId.Value > 0)
+                    {
+                        LoadingText = $"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...";
+                        OutputHelper.Log($"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...", "", "Setup");
+                        _engineService.HookProcess(_setup.BoundEngineProcId.Value);
+                    }
+                    else
+                    {
+                        LoadingText = "Launching new engine instance...";
+                        OutputHelper.Log("Launching new engine instance...", "", "Setup");
+                        _engineService.StartProcess("", appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
+                    }
+                    var proc = _engineService.GetEngineProcess()!;
+                    proc.Exited += Proc_Exited;
+
+                    AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
+
+                    LoadingText = "Connecting to engine's IPC endpoint...";
+                    OutputHelper.Log("Connecting to engine's IPC endpoint...", "", "Setup");
+                    await _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName).ConfigureAwait(false);
+                }
+
+
+                LoadingText = "Setting up scene...";
+                OutputHelper.Log("Setting up scene...", "", "Setup");
+                StoredScene loadedScene;
+                if (_setup.SceneSource == SceneSources.File)
+                {
+                    OutputHelper.Log("Loading scene from file...", "", "Setup");
+                    loadedScene = new StoredScene() { Name = "Scene" };
+                }
+                else if (_setup.SceneSource == SceneSources.BoundEngine)
+                {
+                    OutputHelper.Log("Loading scene from engine...", "", "Setup");
+                    var reply = _engineService.SendMessageExpectReplyAsync(new GetSceneMessage()).Result;
+                    if (reply.HasValue && reply.Value.Status == ReplyStatus.Successful && reply.Value.Content != null)
+                    {
+                        OutputHelper.Log("Deserializing scene...", "", "Setup");
+
+                        var jObject = (JsonElement)reply.Value.Content;
+                        loadedScene = jObject.Deserialize<StoredScene>()!;
+                    }
+                    else
+                    {
+                        OutputHelper.Log("Failed to get satisfactory reply!", "", "Setup", MessageType.Error);
+                        NotificationHelper.Notify(new Message("SceneEdit", "Load Error", "Failed to retrieve loaded scene from bound engine!", MessageType.Error));
+                        Loading = false;
+                        return;
+                    }
                 }
                 else
                 {
-                    _engineService.StartProcess("", appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
+                    OutputHelper.Log("Creating new scene...", "", "Setup");
+                    loadedScene = new StoredScene() { Name = "Scene" };
                 }
-                var proc = _engineService.GetEngineProcess()!;
-                proc.Exited += Proc_Exited;
 
-                _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
+                LoadingText = "Setting up session...";
+                OutputHelper.Log("Creating scene session...", "", "Setup");
+                SessionData = new SessionDataModel(loadedScene, appSettings.PackageDirectory);
+                SessionData.EngineProcessId = _setup.BoundEngineProcId;
 
-                AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
+                OutputHelper.Log("Setting up scene mutator...", "", "Setup");
+                SessionMutator = new SessionDataSceneMutator(SessionData);
 
-                SceneMutationBridge.Engine = _engineService;
-                SceneMutationBridge.Mutator = SessionMutator;
-                SceneMutationBridge.EngineTruth = new Wallop.Shared.ECS.StoredScene();
-                SceneMutationBridge.Enable();
+                OutputHelper.Log("Hooking scene mutator...", "", "Setup");
+                NotificationHelper.HookMutator(SessionMutator);
 
-                //_engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName);
-            }
-            base.OnActivate();
+                if (_setup.BoundEngineProcId.HasValue)
+                {
+                    OutputHelper.Log("Setting up mutation bridge...", "", "Setup");
+                    SceneMutationBridge.Engine = _engineService;
+                    SceneMutationBridge.Mutator = SessionMutator;
+                    SceneMutationBridge.EngineTruth = SessionData.LoadedScene.Clone();
+                    SceneMutationBridge.Enable();
+                }
+
+
+                LoadingText = "Setting up environment...";
+                OutputHelper.Log("Loading UI...", "", "Setup");
+                var factory = new MainDockFactory(SessionData, SessionMutator, _windowService, _pluginService);
+                var layout = factory.CreateLayout();
+                factory.InitLayout(layout);
+
+                Factory = factory;
+                Layout = layout;
+
+                Loading = false;
+                Loaded = true;
+                LoadingText = "Completed!";
+                OutputHelper.Log("Setup completed!", "", "Setup");
+            });
         }
 
         private void Proc_Exited(object? sender, EventArgs e)

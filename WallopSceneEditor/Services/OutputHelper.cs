@@ -10,7 +10,14 @@ namespace WallopSceneEditor.Services
     public static class OutputHelper
     {
         public static event Action<Message>? OnLog;
+        public static Message[] Backlog => _backlog.ToArray();
 
+        private static List<Message> _backlog;
+
+        static OutputHelper()
+        {
+            _backlog = new List<Message>(1000);
+        }
 
         public static void LogWarning(string text, string title = "")
         {
@@ -54,6 +61,7 @@ namespace WallopSceneEditor.Services
 
         public static void Log(Message message)
         {
+            _backlog.Add(message);
             OnLog?.Invoke(message);
         }
     }

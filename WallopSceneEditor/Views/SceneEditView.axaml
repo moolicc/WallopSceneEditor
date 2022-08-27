@@ -3,27 +3,36 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:idc="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
+			 xmlns:ui="using:FluentAvalonia.UI.Controls"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="WallopSceneEditor.Views.SceneEditView">
-	<DockPanel>
+	<Grid>
+		<DockPanel IsVisible="{Binding Loaded}">
 
-		<idc:DockControl Layout="{Binding Layout}"></idc:DockControl>
-		
-		<StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+			<idc:DockControl Layout="{Binding Layout}"></idc:DockControl>
 
-			<ListBox Items="{Binding OutputList}" SelectedIndex="{Binding SelectedOutputItem}" Height="150">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<TextBlock FontSize="14" Text="{Binding}"></TextBlock>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
+			<StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+
+				<ListBox Items="{Binding OutputList}" SelectedIndex="{Binding SelectedOutputItem}" Height="150">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock FontSize="14" Text="{Binding}"></TextBlock>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 
 
-			<StackPanel Background="GhostWhite" Height="26" DockPanel.Dock="Bottom" Orientation="Horizontal">
-				<TextBlock Margin="4" Text="{Binding AttachedProcessText}"></TextBlock>
+				<StackPanel Background="GhostWhite" Height="26" DockPanel.Dock="Bottom" Orientation="Horizontal">
+					<TextBlock Margin="4" Text="{Binding AttachedProcessText}"></TextBlock>
+				</StackPanel>
 			</StackPanel>
-		</StackPanel>
-	</DockPanel>
+		</DockPanel>
+		<Border IsVisible="{Binding !Loaded}" Background="#50000000">
+			<StackPanel VerticalAlignment="Center" Orientation="Vertical">
+				<ui:ProgressRing IsIndeterminate="True" BorderThickness="10" Width="100" Height="100" />
+				<TextBlock Margin="0,8,0,0" FontSize="16" HorizontalAlignment="Center" Text="{Binding LoadingText}">Loading</TextBlock>
+			</StackPanel>
+		</Border>
+	</Grid>
 
 </UserControl>
