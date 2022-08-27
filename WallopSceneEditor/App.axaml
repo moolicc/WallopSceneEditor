@@ -10,10 +10,13 @@
 
     <Application.Styles>
 		<FluentTheme Mode="Light"/>
-
-		<!--<sty:FluentAvaloniaTheme />-->
+		
 		<StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
 		<StyleInclude Source="avares://Dock.Avalonia/Themes/DockFluentTheme.axaml"/>
+
+
+		<!-- TODO: Change to FluentUI on Windows. -->
+		<!-- <sty:FluentAvaloniaTheme RequestedTheme="Dark" /> -->
     </Application.Styles>
 </Application>

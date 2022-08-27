@@ -97,6 +97,8 @@ namespace WallopSceneEditor.ViewModels
             {
                 return;
             }
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Task.Factory.StartNew(async () =>
             {
                 _loading = true;
@@ -105,29 +107,45 @@ namespace WallopSceneEditor.ViewModels
                 OutputHelper.Log("Loading application settings...", "", "Setup");
                 var appSettings = _settings.GetSettingsAsync().Result;
 
-
-                if (_setup.BoundEngineProcId.HasValue)
+                try
                 {
-                    if (_setup.BoundEngineProcId.Value > 0)
+                    if (_setup.BoundEngineProcId.HasValue)
                     {
-                        LoadingText = $"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...";
-                        OutputHelper.Log($"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...", "", "Setup");
-                        _engineService.HookProcess(_setup.BoundEngineProcId.Value);
-                    }
-                    else
-                    {
-                        LoadingText = "Launching new engine instance...";
-                        OutputHelper.Log("Launching new engine instance...", "", "Setup");
-                        _engineService.StartProcess("", appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
-                    }
-                    var proc = _engineService.GetEngineProcess()!;
-                    proc.Exited += Proc_Exited;
+                        if (_setup.BoundEngineProcId.Value > 0)
+                        {
+                            LoadingText = $"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...";
+                            OutputHelper.Log($"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...", "", "Setup");
 
-                    AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
+                            _engineService.HookProcess(_setup.BoundEngineProcId.Value);
+                        }
+                        else
+                        {
+                            LoadingText = "Launching new engine instance...";
+                            OutputHelper.Log("Launching new engine instance...", "", "Setup");
+                            _engineService.StartProcess("", appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
+                        }
+                        var proc = _engineService.GetEngineProcess()!;
+                        proc.Exited += Proc_Exited;
 
-                    LoadingText = "Connecting to engine's IPC endpoint...";
-                    OutputHelper.Log("Connecting to engine's IPC endpoint...", "", "Setup");
-                    await _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName).ConfigureAwait(false);
+                        AttachedProcessText = $"Attached: {proc.ProcessName} ({proc.Id})";
+
+                        LoadingText = "Connecting to engine's IPC endpoint...";
+                        OutputHelper.Log("Connecting to engine's IPC endpoint...", "", "Setup");
+                        if (!await _engineService.ConnectAsync(appSettings.ApplicationName, appSettings.EngineConfig.InstanceName).ConfigureAwait(false))
+                        {
+                            LoadingText = "Failed to establish IPC connection with engine!";
+                            OutputHelper.Log("Failed to establish IPC connection with engine!", "", "Setup", MessageType.Error);
+                            Loading = false;
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LoadingText = $"Failed to perform handshake with engine process! {ex.Message}...";
+                    OutputHelper.Log($"Failed to perform handshake with engine process! {ex.Message}...", "", "Setup", MessageType.Error);
+                    Loading = false;
+                    return;
                 }
 
 
@@ -152,6 +170,7 @@ namespace WallopSceneEditor.ViewModels
                     }
                     else
                     {
+                        LoadingText = "Failed to retrieve scene from bound engine!";
                         OutputHelper.Log("Failed to get satisfactory reply!", "", "Setup", MessageType.Error);
                         NotificationHelper.Notify(new Message("SceneEdit", "Load Error", "Failed to retrieve loaded scene from bound engine!", MessageType.Error));
                         Loading = false;
@@ -199,6 +218,7 @@ namespace WallopSceneEditor.ViewModels
                 LoadingText = "Completed!";
                 OutputHelper.Log("Setup completed!", "", "Setup");
             });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         private void Proc_Exited(object? sender, EventArgs e)
