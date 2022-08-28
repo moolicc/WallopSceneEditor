@@ -34,7 +34,7 @@ namespace WallopSceneEditor
                 di.Add<IWindowService, AvaloniaWindowService>(windowService);
 
                 windowService.AddScreen("main", mainWindow.ViewModel);
-                windowService.SwitchView<StartupViewModel>("main");
+                windowService.SwitchView<NewStartupViewModel>("main");
 
 
             }

@@ -1,12 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:v="clr-namespace:WallopSceneEditor.Views"
 			 xmlns:vm="clr-namespace:WallopSceneEditor.ViewModels"
 			 x:Class="WallopSceneEditor.Views.SettingsView"
-             mc:Ignorable="d" Width="500" Height="400"
-			 CanResize="False">
+             mc:Ignorable="d">
 
 	<DockPanel>
 		<TabControl DockPanel.Dock="Top">
@@ -64,7 +63,7 @@
 				</StackPanel>
 			</TabItem>
 		</TabControl>
-
+		<!--
 		<StackPanel DockPanel.Dock="Bottom" Margin="8" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
 			<Button Name="OkButton" Margin="0,0,4,0" Width="75" IsDefault="True" Command="{Binding OkCommand}">
 				<TextBlock Text="Ok" TextAlignment="Center"></TextBlock>
@@ -73,5 +72,6 @@
 				<TextBlock Text="Cancel" TextAlignment="Center"></TextBlock>
 			</Button>
 		</StackPanel>
+		-->
 	</DockPanel>
-</Window>
+</UserControl>

@@ -15,11 +15,18 @@ namespace WallopSceneEditor.ViewModels
 
         public IScreen HostScreen { get; set;  }
 
+        private bool _activated;
+
         protected ViewModelBase()
         {
             Activator = new ViewModelActivator();
             this.WhenActivated(async (CompositeDisposable d) =>
             {
+                if(_activated)
+                {
+                    return;
+                }
+                _activated = true;
                 OnActivate();
                 await OnActivateAsync();
                 Disposable.Create(() => OnDispose()).DisposeWith(d);

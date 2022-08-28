@@ -14,6 +14,8 @@ namespace WallopSceneEditor.Views
 
         public SceneTreeItemView()
         {
+            // TODO: Use info badges
+
             InitializeComponent();
 
             _textBeforeEdit = "";

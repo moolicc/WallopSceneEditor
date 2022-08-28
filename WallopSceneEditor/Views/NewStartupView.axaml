@@ -2,28 +2,53 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="using:WallopSceneEditor.Views"
+			 xmlns:vm="using:WallopSceneEditor.ViewModels"
+			 xmlns:c="using:WallopSceneEditor.Controls"
+			 xmlns:ui="using:FluentAvalonia.UI.Controls"
+			 xmlns:uip="using:FluentAvalonia.UI.Controls.Primitives"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="WallopSceneEditor.Views.NewStartupView">
 
-	<Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+	<Grid ColumnDefinitions="*,*">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="32" />
+		</Grid.RowDefinitions>
 
-		<StackPanel Margin="8" Orientation="Vertical" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Grid.RowSpan="99">
-			<TextBlock Margin="0,0,0,4">Recent</TextBlock>
-			<ListBox VerticalAlignment="Stretch">test</ListBox>
+		<StackPanel Grid.Row="0" Grid.Column="0" MaxWidth="200" HorizontalAlignment="Left" Orientation="Vertical"  Margin="8" MinWidth="200">
+			<TextBlock Margin="0,0,0,4" HorizontalAlignment="Stretch">Engine</TextBlock>
+			<ComboBox HorizontalAlignment="Stretch" Items="{Binding Engines}" SelectedItem="{Binding SelectedEngine}">
+				<ComboBox.DataTemplates>
+					<DataTemplate>
+						<TextBlock Text="{Binding Text}"></TextBlock>
+					</DataTemplate>
+				</ComboBox.DataTemplates>
+			</ComboBox>
 		</StackPanel>
+
+		<TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Margin="8,0,0,0" FontSize="24">Recent</TextBlock>
+		<ListBox Margin="8" Grid.Row="2" Grid.Column="0">
+			<ListBoxItem>Recent</ListBoxItem>
+			<ListBoxItem>Recent</ListBoxItem>
+			<ListBoxItem>Recent</ListBoxItem>
+		</ListBox>
+
 		
-		<StackPanel Margin="8,8,8,4" Grid.Column="1" Grid.Row="0" Orientation="Vertical">
-			<TextBlock Margin="0,0,0,4">Bind to engine</TextBlock>
-			<ComboBox HorizontalAlignment="Stretch"></ComboBox>
-			
-			<TextBlock Margin="0,8,0,4">Source</TextBlock>
-			<ListBox>
-				<ListBox.Items>
-					<ListBoxItem>File</ListBoxItem>
-					<ListBoxItem>Bound engine</ListBoxItem>
-				</ListBox.Items>
-			</ListBox>
-		</StackPanel>
+		<TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,0" FontSize="24">Create or open</TextBlock>
+		<ScrollViewer Margin="8,8,0,8" Grid.Row="2" Grid.Column="1">
+			<ItemsControl Items="{Binding Sources}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<v:SourceItem Margin="0,0,8,8" DataContext="{Binding}" />
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<ui:HyperlinkButton Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right" Content="Settings" Click="SettingsClicked" />
 	</Grid>
 	
 </UserControl>

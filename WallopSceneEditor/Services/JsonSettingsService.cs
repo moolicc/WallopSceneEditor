@@ -70,7 +70,7 @@ namespace WallopSceneEditor.Services
 
         public async Task SaveSettingsAsync(AppSettingsModel model)
         {
-            using (FileStream fs = new FileStream(APP_FILE, FileMode.OpenOrCreate, FileAccess.Write))
+            using (FileStream fs = new FileStream(APP_FILE, FileMode.Create, FileAccess.Write))
             {
                 await JsonSerializer.SerializeAsync(fs, model);
             }

@@ -13,6 +13,11 @@ using Wallop.Shared.Messaging.Messages;
 using Wallop.Shared.ECS;
 using System.Text.Json.Nodes;
 using System.Text.Json;
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
+using Avalonia.Controls;
+using System.IO;
+using Wallop.IPC;
 
 namespace WallopSceneEditor.ViewModels
 {
@@ -60,6 +65,25 @@ namespace WallopSceneEditor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _loadingText, value);
         }
 
+        public bool LoadError
+        {
+            get => _loadError;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _loadError, value);
+                if(value)
+                {
+                    ProgressForeground = Colors.Red;
+                }
+            }
+        }
+
+        public Color? ProgressForeground
+        {
+            get => _progressForeground;
+            set => this.RaiseAndSetIfChanged(ref _progressForeground, value);
+        }
+
         public SessionDataModel SessionData { get; private set; }
         public SessionDataSceneMutator SessionMutator { get; private set; }
 
@@ -73,7 +97,9 @@ namespace WallopSceneEditor.ViewModels
 
         private bool _loading;
         private bool _loaded;
+        private bool _loadError;
         private string _loadingText;
+        private Color? _progressForeground;
 
 
         private ISettingsService _settings;
@@ -84,6 +110,7 @@ namespace WallopSceneEditor.ViewModels
 
         public SceneEditViewModel(ISettingsService settings, IEngineService engineService, IWindowService windowService, ISessionSetupService setup, IPluginService pluginService)
         {
+            _progressForeground = (Color?)((AvaloniaWindowService)windowService).MainWindow.FindResource("SystemAccentColor");
             _settings = settings;
             _engineService = engineService;
             _windowService = windowService;
@@ -103,14 +130,17 @@ namespace WallopSceneEditor.ViewModels
             {
                 _loading = true;
 
-                LoadingText = "Loading application settings...";
-                OutputHelper.Log("Loading application settings...", "", "Setup");
-                var appSettings = _settings.GetSettingsAsync().Result;
-
+                var stage = "";
                 try
                 {
+                    stage = "Loading settings";
+                    LoadingText = "Loading application settings...";
+                    OutputHelper.Log("Loading application settings...", "", "Setup");
+                    var appSettings = await _settings.GetSettingsAsync().ConfigureAwait(false);
+
                     if (_setup.BoundEngineProcId.HasValue)
                     {
+                        stage = "Performing engine handshake";
                         if (_setup.BoundEngineProcId.Value > 0)
                         {
                             LoadingText = $"Hooking engine with PID: {_setup.BoundEngineProcId.Value}...";
@@ -122,8 +152,16 @@ namespace WallopSceneEditor.ViewModels
                         {
                             LoadingText = "Launching new engine instance...";
                             OutputHelper.Log("Launching new engine instance...", "", "Setup");
+
+                            if(!File.Exists(appSettings.EnginePath))
+                            {
+                                throw new FileNotFoundException("Engine executable not found.", appSettings.EnginePath);
+                            }
                             _engineService.StartProcess("", appSettings, appSettings.EngineConfig, Proc_OutputDataReceived);
                         }
+
+
+                        stage = "Attaching engine process";
                         var proc = _engineService.GetEngineProcess()!;
                         proc.Exited += Proc_Exited;
 
@@ -139,79 +177,83 @@ namespace WallopSceneEditor.ViewModels
                             return;
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LoadingText = $"Failed to perform handshake with engine process! {ex.Message}...";
-                    OutputHelper.Log($"Failed to perform handshake with engine process! {ex.Message}...", "", "Setup", MessageType.Error);
-                    Loading = false;
-                    return;
-                }
 
 
-                LoadingText = "Setting up scene...";
-                OutputHelper.Log("Setting up scene...", "", "Setup");
-                StoredScene loadedScene;
-                if (_setup.SceneSource == SceneSources.File)
-                {
-                    OutputHelper.Log("Loading scene from file...", "", "Setup");
-                    loadedScene = new StoredScene() { Name = "Scene" };
-                }
-                else if (_setup.SceneSource == SceneSources.BoundEngine)
-                {
-                    OutputHelper.Log("Loading scene from engine...", "", "Setup");
-                    var reply = _engineService.SendMessageExpectReplyAsync(new GetSceneMessage()).Result;
-                    if (reply.HasValue && reply.Value.Status == ReplyStatus.Successful && reply.Value.Content != null)
+                    stage = "Loading scene";
+                    LoadingText = "Setting up scene...";
+                    OutputHelper.Log("Setting up scene...", "", "Setup");
+                    StoredScene loadedScene;
+                    if (_setup.SceneSource == SceneSources.File)
                     {
-                        OutputHelper.Log("Deserializing scene...", "", "Setup");
+                        OutputHelper.Log("Loading scene from file...", "", "Setup");
+                        loadedScene = new StoredScene() { Name = "Scene" };
+                    }
+                    else if (_setup.SceneSource == SceneSources.BoundEngine)
+                    {
+                        OutputHelper.Log("Loading scene from engine...", "", "Setup");
+                        var reply = _engineService.SendMessageExpectReplyAsync(new GetSceneMessage()).Result;
+                        if (reply.HasValue && reply.Value.Status == ReplyStatus.Successful && reply.Value.Content != null)
+                        {
+                            OutputHelper.Log("Deserializing scene...", "", "Setup");
 
-                        var jObject = (JsonElement)reply.Value.Content;
-                        loadedScene = jObject.Deserialize<StoredScene>()!;
+                            var jObject = (JsonElement)reply.Value.Content;
+                            loadedScene = jObject.Deserialize<StoredScene>()!;
+                        }
+                        else
+                        {
+                            LoadingText = "Failed to retrieve scene from bound engine!";
+                            OutputHelper.Log("Failed to get satisfactory reply!", "", "Setup", MessageType.Error);
+                            NotificationHelper.Notify(new Message("SceneEdit", "Load Error", "Failed to retrieve loaded scene from bound engine!", MessageType.Error));
+                            Loading = false;
+                            return;
+                        }
                     }
                     else
                     {
-                        LoadingText = "Failed to retrieve scene from bound engine!";
-                        OutputHelper.Log("Failed to get satisfactory reply!", "", "Setup", MessageType.Error);
-                        NotificationHelper.Notify(new Message("SceneEdit", "Load Error", "Failed to retrieve loaded scene from bound engine!", MessageType.Error));
-                        Loading = false;
-                        return;
+                        OutputHelper.Log("Creating new scene...", "", "Setup");
+                        loadedScene = new StoredScene() { Name = "Scene" };
                     }
+
+                    stage = "Initiating session";
+                    LoadingText = "Setting up session...";
+                    OutputHelper.Log("Creating scene session...", "", "Setup");
+                    SessionData = new SessionDataModel(loadedScene, appSettings.PackageDirectory);
+                    SessionData.EngineProcessId = _setup.BoundEngineProcId;
+
+                    OutputHelper.Log("Setting up scene mutator...", "", "Setup");
+                    SessionMutator = new SessionDataSceneMutator(SessionData);
+
+                    OutputHelper.Log("Hooking scene mutator...", "", "Setup");
+                    NotificationHelper.HookMutator(SessionMutator);
+
+                    if (_setup.BoundEngineProcId.HasValue)
+                    {
+                        OutputHelper.Log("Setting up mutation bridge...", "", "Setup");
+                        SceneMutationBridge.Engine = _engineService;
+                        SceneMutationBridge.Mutator = SessionMutator;
+                        SceneMutationBridge.EngineTruth = SessionData.LoadedScene.Clone();
+                        SceneMutationBridge.Enable();
+                    }
+
+
+                    stage = "Setting up environment";
+                    LoadingText = "Setting up environment...";
+                    OutputHelper.Log("Loading UI...", "", "Setup");
+                    var factory = new MainDockFactory(SessionData, SessionMutator, _windowService, _pluginService);
+                    var layout = factory.CreateLayout();
+                    factory.InitLayout(layout);
+
+                    Factory = factory;
+                    Layout = layout;
                 }
-                else
+                catch (Exception ex)
                 {
-                    OutputHelper.Log("Creating new scene...", "", "Setup");
-                    loadedScene = new StoredScene() { Name = "Scene" };
+                    LoadingText = $"Failed to initialize!\nStage: {stage}\nError message: {ex.Message}";
+                    OutputHelper.Log($"Failed to perform handshake with engine process! Stage: {stage}, Message: {ex.Message}", "", "Setup", MessageType.Error);
+                    Loading = false;
+                    LoadError = true;
+                    return;
                 }
-
-                LoadingText = "Setting up session...";
-                OutputHelper.Log("Creating scene session...", "", "Setup");
-                SessionData = new SessionDataModel(loadedScene, appSettings.PackageDirectory);
-                SessionData.EngineProcessId = _setup.BoundEngineProcId;
-
-                OutputHelper.Log("Setting up scene mutator...", "", "Setup");
-                SessionMutator = new SessionDataSceneMutator(SessionData);
-
-                OutputHelper.Log("Hooking scene mutator...", "", "Setup");
-                NotificationHelper.HookMutator(SessionMutator);
-
-                if (_setup.BoundEngineProcId.HasValue)
-                {
-                    OutputHelper.Log("Setting up mutation bridge...", "", "Setup");
-                    SceneMutationBridge.Engine = _engineService;
-                    SceneMutationBridge.Mutator = SessionMutator;
-                    SceneMutationBridge.EngineTruth = SessionData.LoadedScene.Clone();
-                    SceneMutationBridge.Enable();
-                }
-
-
-                LoadingText = "Setting up environment...";
-                OutputHelper.Log("Loading UI...", "", "Setup");
-                var factory = new MainDockFactory(SessionData, SessionMutator, _windowService, _pluginService);
-                var layout = factory.CreateLayout();
-                factory.InitLayout(layout);
-
-                Factory = factory;
-                Layout = layout;
 
                 Loading = false;
                 Loaded = true;
@@ -232,7 +274,18 @@ namespace WallopSceneEditor.ViewModels
             {
                 return;
             }
-            OutputHelper.Log(e.Data, context: "Engine");
+            var status = MessageType.Information;
+
+            if(e.Data.Contains("Error"))
+            {
+                status = MessageType.Error;
+            }
+            else if(e.Data.Contains("Warn"))
+            {
+                status = MessageType.Warning;
+            }
+
+            OutputHelper.Log(e.Data, context: "Engine", type: status);
         }
     }
 }

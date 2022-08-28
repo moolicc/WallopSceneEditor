@@ -7,7 +7,7 @@ using Wallop.Shared.ECS;
 
 namespace WallopSceneEditor.Services
 {
-    internal interface ISceneService
+    public interface ISceneService
     {
         Task<StoredScene> LoadSceneAsync(string filePath);
 

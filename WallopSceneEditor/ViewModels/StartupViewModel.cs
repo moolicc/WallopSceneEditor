@@ -176,7 +176,7 @@ namespace WallopSceneEditor.ViewModels
                 var dialog = new Views.SettingsView();
                 dialog.ViewModel = vm;
 
-                var result = await dialog.ShowDialog<bool?>((_windowService as AvaloniaWindowService)!.MainWindow);
+                //var result = await dialog.ShowDialog<bool?>((_windowService as AvaloniaWindowService)!.MainWindow);
             });
 
         }

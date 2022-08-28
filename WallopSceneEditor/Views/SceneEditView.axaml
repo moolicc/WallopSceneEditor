@@ -29,7 +29,11 @@
 		</DockPanel>
 		<Border IsVisible="{Binding !Loaded}" Background="#50000000">
 			<StackPanel VerticalAlignment="Center" Orientation="Vertical">
-				<ui:ProgressRing IsIndeterminate="True" BorderThickness="10" Width="100" Height="100" />
+				<ui:ProgressRing IsIndeterminate="{Binding !LoadError}" BorderThickness="10" Width="100" Height="100">
+					<ui:ProgressRing.Foreground>
+						<SolidColorBrush Color="{Binding ProgressForeground}"></SolidColorBrush>
+					</ui:ProgressRing.Foreground>
+				</ui:ProgressRing>
 				<TextBlock Margin="0,8,0,0" FontSize="16" HorizontalAlignment="Center" Text="{Binding LoadingText}">Loading</TextBlock>
 			</StackPanel>
 		</Border>

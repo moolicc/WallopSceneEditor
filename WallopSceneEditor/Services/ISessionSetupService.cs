@@ -19,7 +19,5 @@ namespace WallopSceneEditor.Services
 
         int? BoundEngineProcId { get; set; }
         string? SceneFile { get; set; }
-
-
     }
 }
