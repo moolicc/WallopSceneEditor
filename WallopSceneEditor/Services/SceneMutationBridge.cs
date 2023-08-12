@@ -59,11 +59,26 @@ namespace WallopSceneEditor.Services
             Mutator.OnValidateDirector += Mutator_OnValidateDirector;
             Mutator.OnValidateActor += Mutator_OnValidateActor;
 
-            // TODO: Findout what our EngineTruth is.
-
 
             _layoutNameTable.Clear();
             _actorNameTable.Clear();
+
+            if (EngineTruth != null)
+            {
+                foreach (var dir in EngineTruth.DirectorModules)
+                {
+                    _directorNameTable.Add(dir.InstanceName, dir.InstanceName);
+                }
+                foreach (var layout in EngineTruth.Layouts)
+                {
+                    _layoutNameTable.Add(layout.Name, layout.Name);
+                    foreach (var actor in layout.ActorModules)
+                    {
+                        _actorNameTable.Add(new ActorTableKey(layout.Name, actor.InstanceName), actor.InstanceName);
+                    }
+                }
+            }
+
 
             Enabled = true;
         }

@@ -21,10 +21,8 @@ namespace WallopSceneEditor
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-
-
                 var mainWindow = new MainWindow();
-                mainWindow.ViewModel = new MainWindowViewModel();
+                mainWindow.DataContext = new MainWindowViewModel();
 
                 desktop.MainWindow = mainWindow;
 
@@ -33,7 +31,7 @@ namespace WallopSceneEditor
                 var windowService = new AvaloniaWindowService(desktop, di);
                 di.Add<IWindowService, AvaloniaWindowService>(windowService);
 
-                windowService.AddScreen("main", mainWindow.ViewModel);
+                windowService.AddScreen("main", (MainWindowViewModel)mainWindow.DataContext);
                 windowService.SwitchView<NewStartupViewModel>("main");
 
 

@@ -61,6 +61,7 @@ namespace WallopSceneEditor.Services
 
         public static void Log(Message message)
         {
+            Console.WriteLine("[{0}] {1}:{2}", message.MessageType, message.Context, message.Text);
             _backlog.Add(message);
             OnLog?.Invoke(message);
         }

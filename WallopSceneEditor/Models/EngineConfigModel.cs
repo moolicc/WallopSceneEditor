@@ -12,5 +12,7 @@ namespace WallopSceneEditor.Models
         public int Width { get; set; } = 800;
         public int Height { get; set; } = 600;
 
+        public string LogFile { get; set; } = "editor_engine.log";
+
     }
 }

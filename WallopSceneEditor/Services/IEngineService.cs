@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wallop.IPC;
 using Wallop.Shared.ECS;
 using Wallop.Shared.Messaging.Messages;
 using WallopSceneEditor.Models;
@@ -19,7 +20,13 @@ namespace WallopSceneEditor.Services
         Task<bool> ConnectAsync(string myName, string hostName, string machine = ".");
 
         Task<bool> SendMessageAsync<T>(T message) where T : struct;
-        Task<MessageReply?> SendMessageExpectReplyAsync<T>(T message)
+        Task<MessageReply?> SendMessageExpectReplyAsync<T>(T message, int timeout)
             where T : struct;
+
+        public Task<string?> GetEngineNameAsync(int hostProc, string myName);
+
+        public Task<string?> GetSceneNameAsync(int hostProc, string myName);
+
+        public Task<string?> SendSystemMessageAsync(string message, string myName, int hostProc, string machine = ".");
     }
 }

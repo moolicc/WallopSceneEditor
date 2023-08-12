@@ -18,6 +18,10 @@ namespace WallopSceneEditor.Services
 {
     public class WallopEngineService : IEngineService
     {
+        private const string SYS_GET_APPLICATION_NAME = "GetApplicationName";
+        private const string SYS_GET_SCENE_NAME = "GetSceneName";
+        private const string RESOURCE_SYSTEM = "sys";
+
         private const string RESOURCE_MESSENGER = "msg";
         private const string RESOURCE_DELIMITER = "-";
 
@@ -47,7 +51,7 @@ namespace WallopSceneEditor.Services
                 WorkingDirectory = Environment.CurrentDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                UseShellExecute = false
+                //UseShellExecute = false
             };
             _engineProc = new Process();
             _engineProc.OutputDataReceived += onOutput;
@@ -60,6 +64,29 @@ namespace WallopSceneEditor.Services
         public Process? GetEngineProcess()
             => _engineProc;
 
+        public async Task<string?> GetEngineNameAsync(int hostProc, string myName)
+        {
+            return await SendSystemMessageAsync(SYS_GET_APPLICATION_NAME, myName, hostProc).ConfigureAwait(false);
+        }
+
+        public async Task<string?> GetSceneNameAsync(int hostProc, string myName)
+        {
+            return await SendSystemMessageAsync(SYS_GET_SCENE_NAME, myName, hostProc).ConfigureAwait(false);
+        }
+
+        public async Task<string?> SendSystemMessageAsync(string message, string myName, int hostProc, string machine = ".")
+        {
+            var client = new PipeClient(myName, machine, hostProc.ToString(), $"{hostProc.ToString()}{RESOURCE_DELIMITER}{RESOURCE_SYSTEM}");
+            await client.BeginAsync().ConfigureAwait(false);
+            var response = await client.SendRequestAsync(message, null, hostProc.ToString()).ConfigureAwait(false);
+            if(response.RequestFailed)
+            {
+                return null;
+            }
+            await client.EndAsync().ConfigureAwait(false);
+
+            return response.As<string>();
+        }
 
         public async Task<bool> ConnectAsync(string myName, string hostName, string machine = ".")
         {
@@ -106,10 +133,19 @@ namespace WallopSceneEditor.Services
                         new
                         {
                             Directory = appConfig.PluginDirectory,
-                            Recusive = true
+                            Recursive = true
+                        }
+                    },
+                    Logging = new[]
+                    {
+                        new
+                        {
+                            File = appConfig.EngineConfig.LogFile,
+                            FileKind = 1,
+                            LevelFilter = Array.Empty<string>(),
+                            ContextFilter = Array.Empty<string>()
                         }
                     }
-
                 },
                 SceneSettings = new
                 {
@@ -117,6 +153,28 @@ namespace WallopSceneEditor.Services
                 },
                 PluginSettings = new
                 {
+                    BaseDirectory = appConfig.PluginDirectory,
+                    Plugins = new[]
+                    {
+                        new
+                        {
+                            PluginEnabled = true,
+                            PluginDll = Path.Combine("IronPython", "Scripting.IronPython.dll"),
+                            PluginName = "Scripting",
+                        },
+                        new
+                        {
+                            PluginEnabled = true,
+                            PluginDll = Path.Combine("HostApis", "HostApis.dll"),
+                            PluginName = "Host APIs",
+                        },
+                        new
+                        {
+                            PluginEnabled = true,
+                            PluginDll = Path.Combine("IronPython", "Scripting.IronPython.dll"),
+                            PluginName = "Scripting",
+                        }
+                    }
                 },
                 GraphicsSettings = new
                 {
@@ -130,13 +188,13 @@ namespace WallopSceneEditor.Services
 
         public async Task<bool> SendMessageAsync<T>(T message) where T : struct
         {
-            return await SendMessageExpectReplyAsync(message).ConfigureAwait(false) != null;
+            return await SendMessageExpectReplyAsync(message, -1).ConfigureAwait(false) != null;
         }
 
-        public async Task<MessageReply?> SendMessageExpectReplyAsync<T>(T message)
+        public async Task<MessageReply?> SendMessageExpectReplyAsync<T>(T message, int timeout)
             where T : struct
         {
-            return await Task.Run<MessageReply?>(async () =>
+            var msgTask = Task.Run<MessageReply?>(async () =>
             {
                 await _msgClient.BeginAsync().ConfigureAwait(false);
                 var id = _messenger.Put(message);
@@ -147,7 +205,16 @@ namespace WallopSceneEditor.Services
                     return null;
                 }
                 return reply;
-            }).ConfigureAwait(false);
+            });
+
+            if (timeout <= 0)
+            {
+                return await msgTask.ConfigureAwait(false);
+            }
+            else
+            {
+                return await msgTask.WaitAsync(TimeSpan.FromMilliseconds(timeout)).ConfigureAwait(false);
+            }
         }
     }
 }

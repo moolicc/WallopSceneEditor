@@ -6,8 +6,24 @@
 			 xmlns:ui="using:FluentAvalonia.UI.Controls"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="WallopSceneEditor.Views.SceneEditView">
+
+	<UserControl.Styles>
+		<Style Selector="Border.fadeout">
+			<Style.Animations>
+				<Animation Duration="0:0:2">
+					<KeyFrame Cue="0%">
+						<Setter Property="IsVisible" Value="True" />
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="Opacity" Value="0.0" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+	</UserControl.Styles>
+	
 	<Grid>
-		<DockPanel IsVisible="{Binding Loaded}">
+		<DockPanel>
 
 			<idc:DockControl Layout="{Binding Layout}"></idc:DockControl>
 
@@ -27,7 +43,10 @@
 				</StackPanel>
 			</StackPanel>
 		</DockPanel>
-		<Border IsVisible="{Binding !Loaded}" Background="#50000000">
+
+		
+		<Border Classes.fadeout="{Binding FadoutOverlay}" IsVisible="{Binding !Loaded}" Background="#FF505050" Opacity="0.8">
+			
 			<StackPanel VerticalAlignment="Center" Orientation="Vertical">
 				<ui:ProgressRing IsIndeterminate="{Binding !LoadError}" BorderThickness="10" Width="100" Height="100">
 					<ui:ProgressRing.Foreground>

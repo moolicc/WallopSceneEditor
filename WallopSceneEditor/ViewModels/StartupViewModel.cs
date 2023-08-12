@@ -14,6 +14,8 @@ using ReactiveUI.Fody.Helpers;
 using WallopSceneEditor.Models;
 using WallopSceneEditor.Services;
 
+// TODO: Either show the engine log on the startup window, or provide a log file on error.
+
 namespace WallopSceneEditor.ViewModels
 {
     public class RecentFileViewModel

@@ -27,6 +27,10 @@ namespace WallopSceneEditor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedEngine, value);
         }
 
+        public bool LoadingEngines
+        {
+            get => _enginesLock;
+        }
 
         private DispatcherTimer _timer;
         private EngineItemViewModel? _selectedEngine;
@@ -37,10 +41,12 @@ namespace WallopSceneEditor.ViewModels
         private readonly IWindowService _windowService;
         private readonly ISceneService _sceneService;
         private readonly ISessionSetupService _setup;
+        private IEngineService _engineService;
 
 
-        public NewStartupViewModel(ISettingsService settingsService, IWindowService windowService, ISceneService sceneService, ISessionSetupService setup)
+        public NewStartupViewModel(IEngineService engineService, ISettingsService settingsService, IWindowService windowService, ISceneService sceneService, ISessionSetupService setup)
         {
+            _engineService = engineService;
             _settingsService = settingsService;
             _windowService = windowService;
             _sceneService = sceneService;
@@ -54,6 +60,9 @@ namespace WallopSceneEditor.ViewModels
 
         protected override void OnActivate()
         {
+            NotificationHelper.WindowService = _windowService;
+
+
             // TODO: Load these from plugin.
             var fileSource = new SourceItemViewModel();
             fileSource.Header = "File";
@@ -81,7 +90,7 @@ namespace WallopSceneEditor.ViewModels
             Engines.Add(new EngineItemViewModel("New", PROC_NEW));
             SelectedEngine = Engines[0];
 
-            LoadEngineProcs();
+            //LoadEngineProcs();
             _timer.Start();
 
             base.OnActivate();
@@ -94,6 +103,8 @@ namespace WallopSceneEditor.ViewModels
                 return;
             }
             _enginesLock = true;
+            this.RaisePropertyChanged(nameof(LoadingEngines));
+
             var processes = Process.GetProcessesByName("wallop");
             // TODO: Get active scene name of process.
 
@@ -101,7 +112,10 @@ namespace WallopSceneEditor.ViewModels
             {
                 if (!Engines.Any(p => p.ProcessId == proc.Id))
                 {
-                    Engines.Add(new EngineItemViewModel(proc.ProcessName, proc.Id));
+                    var myName = _settingsService.GetSettingsAsync().Result.ApplicationName;
+                    var engineName = _engineService.GetEngineNameAsync(proc.Id, myName).Result;
+                    var sceneName = _engineService.GetSceneNameAsync(proc.Id, myName).Result;
+                    Engines.Add(new EngineItemViewModel($"{engineName} ({sceneName})", proc.Id));
                 }
             }
 
@@ -115,6 +129,7 @@ namespace WallopSceneEditor.ViewModels
                 }
             }
             _enginesLock = false;
+            this.RaisePropertyChanged(nameof(LoadingEngines));
         }
 
         private void UpdateEngineTimer_Ticked(object? sender, EventArgs e)

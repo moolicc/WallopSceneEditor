@@ -19,7 +19,13 @@
 		</Grid.RowDefinitions>
 
 		<StackPanel Grid.Row="0" Grid.Column="0" MaxWidth="200" HorizontalAlignment="Left" Orientation="Vertical"  Margin="8" MinWidth="200">
-			<TextBlock Margin="0,0,0,4" HorizontalAlignment="Stretch">Engine</TextBlock>
+
+			<StackPanel Orientation="Horizontal" Margin="0,0,0,4" HorizontalAlignment="Stretch">
+
+				<TextBlock>Engine</TextBlock>
+				<ui:SymbolIcon IsVisible="{Binding LoadingEngines}" Foreground="CornflowerBlue" Margin="4,0,0,0" Symbol="RefreshFilled" />
+			</StackPanel>
+			
 			<ComboBox HorizontalAlignment="Stretch" Items="{Binding Engines}" SelectedItem="{Binding SelectedEngine}">
 				<ComboBox.DataTemplates>
 					<DataTemplate>
