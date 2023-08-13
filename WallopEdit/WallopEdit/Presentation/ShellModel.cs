@@ -13,7 +13,7 @@ namespace WallopEdit.Presentation
 
         public async Task Start()
         {
-            await _navigator.NavigateViewModelAsync<MainModel>(this);
+            await _navigator.NavigateViewModelAsync<LandingModel>(this);
         }
     }
 }

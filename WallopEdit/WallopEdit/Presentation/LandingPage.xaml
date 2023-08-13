@@ -1,7 +1,8 @@
-<Page x:Class="WallopEdit.Presentation.MainPage"
+<Page x:Class="WallopEdit.Presentation.LandingPage"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="using:WallopEdit.Presentation"
+	xmlns:wedit="using:WallopEdit"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
@@ -11,7 +12,7 @@
     xmlns:winui="using:Microsoft.UI.Xaml.Controls"
 	NavigationCacheMode="Required"
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    
     <winui:Grid utu:SafeArea.Insets="All">
         <winui:Grid.RowDefinitions>
             <winui:RowDefinition Height="Auto" />
@@ -27,7 +28,13 @@
                               IsPaneToggleButtonVisible="False"
                               PaneDisplayMode="Left" IsBackEnabled="False"
                               IsPaneOpen="True" IsPaneVisible="True"
-                              Background="{ThemeResource PivotNavButtonBackgroundThemeBrush}">
+                              Background="{ThemeResource PivotNavButtonBackgroundThemeBrush}"
+                              MenuItemsSource="{Binding Scenes}">
+            <winui:NavigationView.MenuItemTemplate>
+                <DataTemplate>
+                    <winui:TextBlock Text="{Binding File}" />
+                </DataTemplate>
+            </winui:NavigationView.MenuItemTemplate>
             <winui:NavigationView.PaneHeader>
 
                 <winui:StackPanel winui:Grid.Row="0" winui:Grid.Column="1"
@@ -52,11 +59,11 @@
                     <winui:TextBlock FontSize="18" Foreground="{ThemeResource PivotNavButtonForegroundThemeBrush}">Scenes</winui:TextBlock>
                 </winui:StackPanel>
             </winui:NavigationView.PaneHeader>
-            <winui:NavigationView.MenuItems>
+            <!--<winui:NavigationView.MenuItems>
 
                 <winui:TextBlock>test2</winui:TextBlock>
                 
-            </winui:NavigationView.MenuItems>
+            </winui:NavigationView.MenuItems>-->
 
             <winui:NavigationView.FooterMenuItems>
                 <winui:NavigationViewItem>

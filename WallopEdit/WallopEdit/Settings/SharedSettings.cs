@@ -9,7 +9,7 @@ namespace WallopEdit.Settings
     /// <summary>
     /// Represents settings that may be used for both this Application and Engine.
     /// </summary>
-    class SharedSettings
+    public class SharedSettings
     {
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace WallopEdit.Presentation
 {
-    public sealed partial class SecondPage : Page
+    public sealed partial class EditorPage : Page
     {
-        public SecondPage()
+        public EditorPage()
         {
             this.InitializeComponent();
         }

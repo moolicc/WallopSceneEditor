@@ -52,8 +52,11 @@ namespace WallopEdit
                     }, enableUnoLogging: true)
                     .ConfigureServices((context, services) =>
                     {
-                        // TODO: Register your services
-                        //services.AddSingleton<IMyService, MyService>();
+                        var settingsInstance = new Services.JsonSettingsService();
+                        settingsInstance.Load();
+
+
+                        services.AddSingleton<Services.ISettingsService>(settingsInstance);
                     })
                     .UseNavigation(ReactiveViewModelMappings.ViewModelMappings, RegisterRoutes)
                 );
@@ -66,16 +69,16 @@ namespace WallopEdit
         {
             views.Register(
                 new ViewMap(ViewModel: typeof(ShellModel)),
-                new ViewMap<MainPage, MainModel>(),
-                new DataViewMap<SecondPage, SecondModel, Entity>()
+                new ViewMap<LandingPage, LandingModel>(),
+                new DataViewMap<EditorPage, EditorModel, Entity>()
             );
 
             routes.Register(
                 new RouteMap("", View: views.FindByViewModel<ShellModel>(),
                     Nested: new RouteMap[]
                     {
-                    new RouteMap("Main", View: views.FindByViewModel<MainModel>()),
-                    new RouteMap("Second", View: views.FindByViewModel<SecondModel>()),
+                    new RouteMap("Main", View: views.FindByViewModel<LandingModel>()),
+                    new RouteMap("Second", View: views.FindByViewModel<EditorModel>()),
                     }
                 )
             );

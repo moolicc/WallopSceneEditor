@@ -9,7 +9,7 @@ namespace WallopEdit.Settings
     /// <summary>
     /// Represents settings related to just the engine.
     /// </summary>
-    class EngineSettings
+    public class EngineSettings
     {
     }
 }

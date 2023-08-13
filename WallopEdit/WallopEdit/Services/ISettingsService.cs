@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WallopEdit.Services
 {
-    interface ISettingsService
+    public interface ISettingsService
     {
         Settings.ApplicationSettings AppSettings { get; }
         Settings.EngineSettings EngineSettings { get; }
