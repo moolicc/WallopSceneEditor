@@ -7,7 +7,7 @@ namespace WallopEdit
 
         public App()
         {
-            this.RequestedTheme = ApplicationTheme.Dark;
+            // this.RequestedTheme = ApplicationTheme.Dark;
         }
 
         protected async override void OnLaunched(LaunchActivatedEventArgs args)

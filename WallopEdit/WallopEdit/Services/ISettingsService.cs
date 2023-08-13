@@ -8,6 +8,11 @@ namespace WallopEdit.Services
 {
     interface ISettingsService
     {
+        Settings.ApplicationSettings AppSettings { get; }
+        Settings.EngineSettings EngineSettings { get; }
+        Settings.SharedSettings SharedSettings { get; }
 
+        void Load();
+        void Save();
     }
 }
