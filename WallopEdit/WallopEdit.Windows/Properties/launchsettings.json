@@ -1,0 +1,10 @@
+{
+  "profiles": {
+	"WallopEdit.Windows (Package)": {
+	  "commandName": "MsixPackage"
+	},
+	"WallopEdit.Windows (Unpackaged)": {
+	  "commandName": "Project"
+	}
+  }
+}
