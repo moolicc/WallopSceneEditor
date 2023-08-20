@@ -11,5 +11,10 @@ namespace WallopEdit.Presentation
         //    await _navigator.NavigateViewModelAsync<EditorModel>(this, data: new Entity(name!));
         //}
 
+        public async Task GoToEdit()
+        {
+            await Navigator.NavigateViewModelAsync<EditorModel>(this);
+        }
+
     }
 }

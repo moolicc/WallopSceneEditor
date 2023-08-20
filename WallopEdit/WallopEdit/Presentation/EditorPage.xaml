@@ -6,30 +6,98 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:uen="using:Uno.Extensions.Navigation.UI"
 	xmlns:utu="using:Uno.Toolkit.UI"
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-	<Grid utu:SafeArea.Insets="All">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition />
-		</Grid.RowDefinitions>
-		<utu:NavigationBar Content="Second Page">
-			<utu:NavigationBar.MainCommand>
-				<AppBarButton>
-					<AppBarButton.Icon>
-						<BitmapIcon UriSource="ms-appx:///WallopEdit/Assets/Icons/back.png" />
-					</AppBarButton.Icon>
-				</AppBarButton>
-			</utu:NavigationBar.MainCommand>
-		</utu:NavigationBar>
-		<StackPanel Grid.Row="1"
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center">
-			<TextBlock Text="{Binding Entity.Name}"
-				HorizontalAlignment="Center"
-				VerticalAlignment="Center"
-				Margin="8" />
-		</StackPanel>
+    <Grid utu:SafeArea.Insets="All">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />               <!-- Main menu strip -->
+            <RowDefinition />               <!-- Side panels and Center toolbar -->
+            <RowDefinition />               <!-- Side panels and Center panel -->
+            <RowDefinition Height="5" />
+            <RowDefinition />               <!-- Side panels and Bottom panel -->
+            <RowDefinition />               <!-- Status panel -->
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />            <!-- Main menu strip, Left panel and status panel -->
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition />            <!-- Main menu strip, Center panel, Center toolbar, Bottom panel -->
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition />            <!-- Main menu strip, Right panel and status panel -->
+        </Grid.ColumnDefinitions>
 
-	</Grid>
+        <MenuBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
+                 HorizontalAlignment="Stretch">
+            <MenuBarItem Title="File">
+                <MenuFlyoutItem Text="New">
+                    <MenuFlyoutItem.Icon>
+                        <SymbolIcon Symbol="Document" />
+                    </MenuFlyoutItem.Icon>
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="N" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+            <MenuBarItem Title="Edit">
+            </MenuBarItem>
+            <MenuBarItem Title="View">
+                <MenuFlyoutSubItem Text="Windows">
+                    <ToggleMenuFlyoutItem Text="Scene Tree" />
+                    <ToggleMenuFlyoutItem Text="Scene Graph" />
+                    <ToggleMenuFlyoutItem Text="Available Packages" />
+                    <ToggleMenuFlyoutItem Text="Property Grid" />
+                    <ToggleMenuFlyoutItem Text="Log" />
+                </MenuFlyoutSubItem>
+            </MenuBarItem>
+            <MenuBarItem Title="Tools">
+            </MenuBarItem>
+            <MenuBarItem Title="Help">
+            </MenuBarItem>
+        </MenuBar>
+
+        <!-- Left panel -->
+        <winui:TabView Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" IsAddTabButtonVisible="False"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <winui:TabViewItem Header="Scene Tree" IsClosable="False" />
+        </winui:TabView>
+        
+        <!-- Left-most splitter -->
+        <!-- TODO -->
+        
+        <!-- Center toolbar -->
+        <CommandBar Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" Content="Selected item">
+        </CommandBar>
+        
+        <!-- Center panel -->
+        <StackPanel Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+        <!-- Right-most splitter -->
+        <!-- TODO -->
+            
+        <!-- Right panel -->
+        <winui:TabView Grid.Row="1" Grid.Column="4" Grid.RowSpan="4" IsAddTabButtonVisible="False"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <winui:TabViewItem Header="This is the right panel" IsClosable="False"></winui:TabViewItem>
+        </winui:TabView>
+        
+        
+        <!-- Lower left panel -->
+        <winui:TabView Grid.Row="4" Grid.Column="0" Grid.RowSpan="1" IsAddTabButtonVisible="False"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <winui:TabViewItem Header="Properties" IsClosable="False" />
+        </winui:TabView>
+
+        <!-- Bottom-most splitter -->
+        <!-- TODO -->
+        
+        <!-- Bottom panel -->
+        <winui:TabView Grid.Row="4" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <winui:TabViewItem Header="This is the bottom panel" IsClosable="False"></winui:TabViewItem>
+        </winui:TabView>
+
+        <!-- Status panel -->
+        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        </StackPanel>
+    </Grid>
 </Page>

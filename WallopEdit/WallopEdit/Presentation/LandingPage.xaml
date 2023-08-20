@@ -111,7 +111,7 @@
 
 
                 <!-- Create New Scene -->
-                <winui:Button Width="250" Height="150"
+                <winui:Button Width="250" Height="150" Command="{Binding GoToEdit}"
                   HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
                     <winui:StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Orientation="Vertical" Spacing="12" Margin="8">

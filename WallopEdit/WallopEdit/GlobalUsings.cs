@@ -12,7 +12,6 @@ global using Uno.Extensions.Hosting;
 global using Uno.Extensions.Logging;
 global using Uno.Extensions.Navigation;
 global using Uno.Extensions.Reactive;
-global using WallopEdit.Business.Models;
 global using WallopEdit.Presentation;
 global using Windows.ApplicationModel;
 global using Windows.Networking.Connectivity;

@@ -1,6 +1,6 @@
 namespace WallopEdit.Presentation
 {
-    public partial record EditorModel(Entity Entity)
+    public partial record EditorModel()
     {
     }
 }

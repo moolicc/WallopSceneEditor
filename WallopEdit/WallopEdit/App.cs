@@ -1,3 +1,5 @@
+using WallopEdit.Models;
+
 namespace WallopEdit
 {
     public class App : Application
@@ -70,7 +72,7 @@ namespace WallopEdit
             views.Register(
                 new ViewMap(ViewModel: typeof(ShellModel)),
                 new ViewMap<LandingPage, LandingModel>(),
-                new DataViewMap<EditorPage, EditorModel, Entity>()
+                new DataViewMap<EditorPage, EditorModel, Scene>()
             );
 
             routes.Register(
