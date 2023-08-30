@@ -109,8 +109,8 @@
         
         <!-- Bottom panel -->
         <winui:TabView Grid.Row="4" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       IsAddTabButtonVisible="False">
-            <winui:TabViewItem Header="This is the bottom panel" IsClosable="False"></winui:TabViewItem>
+                       IsAddTabButtonVisible="False" TabWidthMode="Compact">
+            <winui:TabViewItem Header="Log" IsClosable="False"></winui:TabViewItem>
         </winui:TabView>
 
         <!-- Status panel -->
