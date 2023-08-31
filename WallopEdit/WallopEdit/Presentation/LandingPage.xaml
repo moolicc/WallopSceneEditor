@@ -13,141 +13,145 @@
 	NavigationCacheMode="Required"
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     
-    <winui:Grid utu:SafeArea.Insets="All">
-        <winui:Grid.RowDefinitions>
-            <winui:RowDefinition Height="Auto" />
-            <winui:RowDefinition />
-        </winui:Grid.RowDefinitions>
-        <winui:Grid.ColumnDefinitions>
-            <winui:ColumnDefinition Width="Auto" />
-            <winui:ColumnDefinition />
-        </winui:Grid.ColumnDefinitions>
+    <Grid utu:SafeArea.Insets="All">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
 
-        <winui:NavigationView winui:Grid.Row="0" winui:Grid.RowSpan="2"
-                              winui:Grid.Column="0" IsBackButtonVisible="Collapsed"
+        <NavigationView Grid.Row="0" Grid.RowSpan="2"
+                              Grid.Column="0" IsBackButtonVisible="Collapsed"
                               IsPaneToggleButtonVisible="False"
                               PaneDisplayMode="Left" IsBackEnabled="False"
                               IsPaneOpen="True" IsPaneVisible="True"
                               Background="{ThemeResource PivotNavButtonBackgroundThemeBrush}"
                               MenuItemsSource="{Binding Scenes}">
-            <winui:NavigationView.MenuItemTemplate>
+            <NavigationView.MenuItemTemplate>
                 <DataTemplate>
-                    <winui:TextBlock Text="{Binding File}" />
+                    <NavigationViewItem ToolTipService.ToolTip="{Binding SceneSource}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding SceneName}" />
+                        </StackPanel>
+                    </NavigationViewItem>
                 </DataTemplate>
-            </winui:NavigationView.MenuItemTemplate>
-            <winui:NavigationView.PaneHeader>
+            </NavigationView.MenuItemTemplate>
+            <NavigationView.PaneHeader>
 
-                <winui:StackPanel winui:Grid.Row="0" winui:Grid.Column="1"
+                <StackPanel Grid.Row="0" Grid.Column="1"
 					HorizontalAlignment="Stretch"
 					VerticalAlignment="Top"
 					Spacing="8" Margin="8"
                     Orientation="Vertical">
-                    <winui:TextBlock Text="Engine" HorizontalAlignment="Center" />
-                    <winui:ComboBox HorizontalAlignment="Center" Width="150" SelectedIndex="0">
-                        <winui:ComboBox.Items>
-                            <winui:ComboBoxItem>New</winui:ComboBoxItem>
-                            <winui:ComboBoxItem>PID</winui:ComboBoxItem>
-                        </winui:ComboBox.Items>
-                    </winui:ComboBox>
+                    <TextBlock Text="Engine" HorizontalAlignment="Center" />
+                    <ComboBox HorizontalAlignment="Center" Width="150" SelectedIndex="0">
+                        <ComboBox.Items>
+                            <ComboBoxItem>New</ComboBoxItem>
+                            <ComboBoxItem>PID</ComboBoxItem>
+                        </ComboBox.Items>
+                    </ComboBox>
 
 
-                    <winui:TextBlock HorizontalAlignment="Center" TextAlignment="Center" FontSize="16" Margin="0,24,0,0" FontFamily="{ThemeResource PivotHeaderItemFontFamily}">
+                    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" FontSize="16" Margin="0,24,0,0" FontFamily="{ThemeResource PivotHeaderItemFontFamily}">
                     Welcome!<LineBreak />Open a scene to begin.
-                    </winui:TextBlock>
+                    </TextBlock>
 
-                    <winui:NavigationViewItemSeparator />
-                    <winui:TextBlock FontSize="18" Foreground="{ThemeResource PivotNavButtonForegroundThemeBrush}">Scenes</winui:TextBlock>
-                </winui:StackPanel>
-            </winui:NavigationView.PaneHeader>
-            <!--<winui:NavigationView.MenuItems>
+                    <NavigationViewItemSeparator />
+                    <TextBlock FontSize="18" Foreground="{ThemeResource PivotNavButtonForegroundThemeBrush}">Scenes</TextBlock>
+                </StackPanel>
+            </NavigationView.PaneHeader>
+            <!--<NavigationView.MenuItems>
 
-                <winui:TextBlock>test2</winui:TextBlock>
+                <TextBlock>test2</TextBlock>
                 
-            </winui:NavigationView.MenuItems>-->
+            </NavigationView.MenuItems>-->
 
-            <winui:NavigationView.FooterMenuItems>
-                <winui:NavigationViewItem>
-                    <winui:StackPanel Orientation="Horizontal" Spacing="20">
-                        <winui:FontIcon FontSize="14" Glyph="&#xEA52;"></winui:FontIcon>
-                        <winui:TextBlock>Import</winui:TextBlock>
-                    </winui:StackPanel>
-                </winui:NavigationViewItem>
-                <winui:NavigationViewItem>
-                    <winui:StackPanel Orientation="Horizontal" Spacing="20">
-                        <winui:FontIcon FontSize="14" Glyph="&#xEDE2;"></winui:FontIcon>
-                        <winui:TextBlock>Export</winui:TextBlock>
-                    </winui:StackPanel>
-                </winui:NavigationViewItem>
-            </winui:NavigationView.FooterMenuItems>
-        </winui:NavigationView>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem>
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <FontIcon FontSize="14" Glyph="&#xEA52;"></FontIcon>
+                        <TextBlock>Import</TextBlock>
+                    </StackPanel>
+                </NavigationViewItem>
+                <NavigationViewItem>
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <FontIcon FontSize="14" Glyph="&#xEDE2;"></FontIcon>
+                        <TextBlock>Export</TextBlock>
+                    </StackPanel>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+        </NavigationView>
 
 
-        <winui:Grid winui:Grid.Row="0" winui:Grid.Column="1" winui:Grid.RowSpan="2"
+        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <winui:Grid.ColumnDefinitions>
-                <winui:ColumnDefinition Width="Auto" />
-                <winui:ColumnDefinition Width="*" />
-            </winui:Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             
             <!-- Control buttons -->
-            <utu:AutoLayout winui:Grid.Column="0" VerticalAlignment="Center"
+            <utu:AutoLayout Grid.Column="0" VerticalAlignment="Center"
                 Margin="16" Spacing="14">
 
                 <!-- Use Engine Scene -->
-                <winui:Button Width="250" Height="150"
+                <Button Width="250" Height="150"
                   HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
-                    <winui:StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Orientation="Vertical" Spacing="12" Margin="8">
-                        <winui:StackPanel Orientation="Horizontal" Spacing="12">
-                            <winui:FontIcon FontSize="18" Glyph="&#xE896;"></winui:FontIcon>
-                            <winui:TextBlock FontSize="18">Use Engine Scene</winui:TextBlock>
-                        </winui:StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon FontSize="18" Glyph="&#xE896;"></FontIcon>
+                            <TextBlock FontSize="18">Use Engine Scene</TextBlock>
+                        </StackPanel>
 
-                        <winui:TextBlock>Select this option to load a scene
+                        <TextBlock>Select this option to load a scene
                             <LineBreak /> from the selected Engine.
-                        </winui:TextBlock>
-                    </winui:StackPanel>
-                </winui:Button>
+                        </TextBlock>
+                    </StackPanel>
+                </Button>
 
 
                 <!-- Create New Scene -->
-                <winui:Button Width="250" Height="150" Command="{Binding GoToEdit}"
+                <Button Width="250" Height="150" Command="{Binding GoToEdit}"
                   HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
-                    <winui:StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Orientation="Vertical" Spacing="12" Margin="8">
-                        <winui:StackPanel Orientation="Horizontal" Spacing="12">
-                            <winui:FontIcon FontSize="18" Glyph="&#xE710;"></winui:FontIcon>
-                            <winui:TextBlock FontSize="18">Create New Scene</winui:TextBlock>
-                        </winui:StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon FontSize="18" Glyph="&#xE710;"></FontIcon>
+                            <TextBlock FontSize="18">Create New Scene</TextBlock>
+                        </StackPanel>
 
-                        <winui:TextBlock>Select this option to create
+                        <TextBlock>Select this option to create
                             <LineBreak /> an entirely new scene.
-                        </winui:TextBlock>
-                    </winui:StackPanel>
-                </winui:Button>
+                        </TextBlock>
+                    </StackPanel>
+                </Button>
 
                 <!-- Load selected scene -->
-                <winui:Button Width="250" Height="150"
+                <Button Width="250" Height="150"
                   HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
-                    <winui:StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Orientation="Vertical" Spacing="12" Margin="8">
-                        <winui:StackPanel Orientation="Horizontal" Spacing="12">
-                            <winui:FontIcon FontSize="18" Glyph="&#xE8E5;"></winui:FontIcon>
-                            <winui:TextBlock FontSize="18">Load Selected Scene</winui:TextBlock>
-                        </winui:StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon FontSize="18" Glyph="&#xE8E5;"></FontIcon>
+                            <TextBlock FontSize="18">Load Selected Scene</TextBlock>
+                        </StackPanel>
 
-                        <winui:TextBlock>Select this option to load
+                        <TextBlock>Select this option to load
                             <LineBreak /> the selected scene.
-                        </winui:TextBlock>
-                    </winui:StackPanel>
-                </winui:Button>
+                        </TextBlock>
+                    </StackPanel>
+                </Button>
 
             </utu:AutoLayout>
             
             <!-- Preview note -->
-            <winui:TextBlock winui:Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
                              FontSize="16" Text="Select a scene to preview." />
-        </winui:Grid>
+        </Grid>
         
-    </winui:Grid>
+    </Grid>
 </Page>

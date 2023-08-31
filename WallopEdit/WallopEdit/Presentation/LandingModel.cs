@@ -1,9 +1,14 @@
+using WallopEdit.Models;
+
 namespace WallopEdit.Presentation
 {
-    public record SceneFile(string File);
-    public partial record LandingModel(INavigator Navigator, Services.ISettingsService Config)
+    public partial record LandingModel(INavigator Navigator, Services.ISettingsService Config, Services.ISceneStorageService SceneStorage)
     {
-        public IFeed<SceneFile[]> Scenes = Feed.Async(_ => ValueTask.FromResult(Directory.GetFiles(Config.AppSettings.SceneDirectory).Select(f => new SceneFile(f)).ToArray()));
+        public IFeed<ListedScene[]> Scenes => Feed.Async(async _ =>
+        {
+            var result = await SceneStorage.ListScenesAsync().ToArrayAsync();
+            return result;
+        });
 
         //public async Task GoToSecond()
         //{

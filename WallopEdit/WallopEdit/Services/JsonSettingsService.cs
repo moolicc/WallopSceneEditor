@@ -30,6 +30,7 @@ namespace WallopEdit.Services
 
         public void Load()
         {
+            Console.WriteLine(AppSettings.SceneDirectory);
         }
 
         public void Save()

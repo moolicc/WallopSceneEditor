@@ -57,8 +57,10 @@ namespace WallopEdit
                         var settingsInstance = new Services.JsonSettingsService();
                         settingsInstance.Load();
 
+                        var storageInstance = new Services.LocalSceneService(settingsInstance.AppSettings);
 
                         services.AddSingleton<Services.ISettingsService>(settingsInstance);
+                        services.AddSingleton<Services.ISceneStorageService>(storageInstance);
                     })
                     .UseNavigation(ReactiveViewModelMappings.ViewModelMappings, RegisterRoutes)
                 );
