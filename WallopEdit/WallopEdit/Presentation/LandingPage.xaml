@@ -3,16 +3,44 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="using:WallopEdit.Presentation"
 	xmlns:wedit="using:WallopEdit"
+	xmlns:models="using:WallopEdit.Models"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
     xmlns:media="using:Microsoft.UI.Xaml.Media"
 	xmlns:uen="using:Uno.Extensions.Navigation.UI"
+	xmlns:mvux="using:Uno.Extensions.Reactive.UI"
 	xmlns:utu="using:Uno.Toolkit.UI"
     xmlns:winui="using:Microsoft.UI.Xaml.Controls"
 	NavigationCacheMode="Required"
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    
+    <Page.Resources>
+        <ResourceDictionary>
+            <local:LandingPageNavMenuTemplateSelector x:Key="navItemTemplateSelector">
+                <local:LandingPageNavMenuTemplateSelector.SceneItemTemplate>
+                    <DataTemplate>
+                        <NavigationViewItem ToolTipService.ToolTip="{Binding SceneSource}">
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon FontSize="14" Foreground="{ThemeResource SystemErrorTextColor}" Glyph="&#xE783;" Visibility="{Binding HasError}" ToolTipService.ToolTip="{Binding ErrorMessage}"></FontIcon>
+                                <TextBlock Margin="4,0,0,0" Text="{Binding SceneName}" />
+                            </StackPanel>
+                        </NavigationViewItem>
+                    </DataTemplate>
+                </local:LandingPageNavMenuTemplateSelector.SceneItemTemplate>
+                <local:LandingPageNavMenuTemplateSelector.ControlItemTemplate>
+                    <DataTemplate>
+                        <NavigationViewItem ToolTipService.ToolTip="{Binding Tooltip}">
+                            <StackPanel Orientation="Horizontal" Spacing="20">
+                                <FontIcon FontSize="14" Glyph="{Binding IconGlyph}"></FontIcon>
+                                <TextBlock Margin="4,0,0,0" Text="{Binding Text}" />
+                            </StackPanel>
+                        </NavigationViewItem>
+                    </DataTemplate>
+                </local:LandingPageNavMenuTemplateSelector.ControlItemTemplate>
+            </local:LandingPageNavMenuTemplateSelector>
+        </ResourceDictionary>
+    </Page.Resources>
+
     <Grid utu:SafeArea.Insets="All">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -29,16 +57,13 @@
                               PaneDisplayMode="Left" IsBackEnabled="False"
                               IsPaneOpen="True" IsPaneVisible="True"
                               Background="{ThemeResource PivotNavButtonBackgroundThemeBrush}"
-                              MenuItemsSource="{Binding Scenes}">
-            <NavigationView.MenuItemTemplate>
-                <DataTemplate>
-                    <NavigationViewItem ToolTipService.ToolTip="{Binding SceneSource}">
-                        <StackPanel>
-                            <TextBlock Text="{Binding SceneName}" />
-                        </StackPanel>
-                    </NavigationViewItem>
+                              MenuItemsSource="{Binding Scenes}" MenuItemTemplateSelector="{StaticResource navItemTemplateSelector}"
+                              x:Name="NavMenu" SelectionChanged="OnSelectedSceneChanges">
+            <!--<NavigationView.MenuItemTemplate>
+                <DataTemplate x:DataType="models:ListedScene">
+                    
                 </DataTemplate>
-            </NavigationView.MenuItemTemplate>
+            </NavigationView.MenuItemTemplate>-->
             <NavigationView.PaneHeader>
 
                 <StackPanel Grid.Row="0" Grid.Column="1"
@@ -47,12 +72,18 @@
 					Spacing="8" Margin="8"
                     Orientation="Vertical">
                     <TextBlock Text="Engine" HorizontalAlignment="Center" />
-                    <ComboBox HorizontalAlignment="Center" Width="150" SelectedIndex="0">
-                        <ComboBox.Items>
-                            <ComboBoxItem>New</ComboBoxItem>
-                            <ComboBoxItem>PID</ComboBoxItem>
-                        </ComboBox.Items>
-                    </ComboBox>
+
+                    <mvux:FeedView Source="{Binding EngineInstances}" HorizontalAlignment="Center" Width="150" Height="32" x:Name="EnginesFeedView">
+                        <DataTemplate>
+                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Data}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InstanceName}" ToolTipService.ToolTip="{Binding ProcId}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DataTemplate>
+                    </mvux:FeedView>
 
 
                     <TextBlock HorizontalAlignment="Center" TextAlignment="Center" FontSize="16" Margin="0,24,0,0" FontFamily="{ThemeResource PivotHeaderItemFontFamily}">
@@ -70,38 +101,71 @@
             </NavigationView.MenuItems>-->
 
             <NavigationView.FooterMenuItems>
+                
                 <NavigationViewItem>
-                    <StackPanel Orientation="Horizontal" Spacing="20">
+                    <NavigationViewItem.DataContext>
+                        <local:NavItemControlButtonModel Text="Import" IconGlyph="&#xEA52;" Tooltip="Import an external scene" />
+                    </NavigationViewItem.DataContext>
+                    
+                    <!--<StackPanel Orientation="Horizontal" Spacing="20">
                         <FontIcon FontSize="14" Glyph="&#xEA52;"></FontIcon>
                         <TextBlock>Import</TextBlock>
-                    </StackPanel>
+                    </StackPanel>-->
                 </NavigationViewItem>
                 <NavigationViewItem>
-                    <StackPanel Orientation="Horizontal" Spacing="20">
+                    <NavigationViewItem.DataContext>
+                        <local:NavItemControlButtonModel Text="Export" IconGlyph="&#xEDE2;" Tooltip="Export a scene to an external file" />
+                    </NavigationViewItem.DataContext>
+                    
+                    <!--<StackPanel Orientation="Horizontal" Spacing="20">
                         <FontIcon FontSize="14" Glyph="&#xEDE2;"></FontIcon>
                         <TextBlock>Export</TextBlock>
-                    </StackPanel>
+                    </StackPanel>-->
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
         </NavigationView>
 
 
-        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+
+            <!-- Preview -->
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             FontSize="16" Text="{Binding PreviewText}" />
+
+            <Image Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Source="{Binding PreviewImage}">
+            </Image>
+
+            <Border Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                    <!-- {Binding MaskCenter} -->
+                    <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.6" RadiusY="0.6">
+                        <GradientStop Color="Transparent" Offset="0" />
+                        <GradientStop Color="Transparent" Offset="0.3" />
+                        <GradientStop Color="{ThemeResource ControlSolidFillColorDefault}" Offset="0.9" />
+                        <GradientStop Color="{ThemeResource ControlSolidFillColorDefault}" Offset="1" />
+                    </RadialGradientBrush>
+                    <!--<LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="{ThemeResource ControlSolidFillColorDefault}" Offset="0.0" />
+                        <GradientStop Color="Transparent" Offset="{Binding MaskLeft}" />
+                        <GradientStop Color="Transparent" Offset="{Binding MaskRight}" />
+                        <GradientStop Color="{ThemeResource ControlSolidFillColorDefault}" Offset="1.0" />
+                    </LinearGradientBrush>-->
+                </Border.Background>
+            </Border>            
             
             <!-- Control buttons -->
-            <utu:AutoLayout Grid.Column="0" VerticalAlignment="Center"
-                Margin="16" Spacing="14">
+            <utu:AutoLayout Grid.Column="0" VerticalAlignment="Center" Margin="16" Spacing="14">
 
                 <!-- Use Engine Scene -->
-                <Button Width="250" Height="150"
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
-                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Orientation="Vertical" Spacing="12" Margin="8">
+                <Button Width="250" Height="150" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
+                    <Button.Background>
+                        <AcrylicBrush AlwaysUseFallback="False" TintColor="{ThemeResource SystemColorButtonFaceColor}" TintOpacity="0.2" />
+                    </Button.Background>
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="12" Margin="8">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <FontIcon FontSize="18" Glyph="&#xE896;"></FontIcon>
                             <TextBlock FontSize="18">Use Engine Scene</TextBlock>
@@ -115,10 +179,11 @@
 
 
                 <!-- Create New Scene -->
-                <Button Width="250" Height="150" Command="{Binding GoToEdit}"
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
-                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Orientation="Vertical" Spacing="12" Margin="8">
+                <Button Width="250" Height="150" Command="{Binding GoToEdit}" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
+                    <Button.Background>
+                        <AcrylicBrush AlwaysUseFallback="False" TintColor="{ThemeResource SystemColorButtonFaceColor}" TintOpacity="0.2" />
+                    </Button.Background>
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="12" Margin="8">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <FontIcon FontSize="18" Glyph="&#xE710;"></FontIcon>
                             <TextBlock FontSize="18">Create New Scene</TextBlock>
@@ -131,10 +196,11 @@
                 </Button>
 
                 <!-- Load selected scene -->
-                <Button Width="250" Height="150"
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
-                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Orientation="Vertical" Spacing="12" Margin="8">
+                <Button Width="250" Height="150" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch">
+                    <Button.Background>
+                        <AcrylicBrush AlwaysUseFallback="False" TintColor="{ThemeResource SystemColorButtonFaceColor}" TintOpacity="0.2" />
+                    </Button.Background>
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="12" Margin="8">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <FontIcon FontSize="18" Glyph="&#xE8E5;"></FontIcon>
                             <TextBlock FontSize="18">Load Selected Scene</TextBlock>
@@ -145,12 +211,7 @@
                         </TextBlock>
                     </StackPanel>
                 </Button>
-
             </utu:AutoLayout>
-            
-            <!-- Preview note -->
-            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
-                             FontSize="16" Text="Select a scene to preview." />
         </Grid>
         
     </Grid>

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WallopEdit.Models;
+using WallopEdit.SceneManagement;
 using WallopEdit.Settings;
 
 namespace WallopEdit.Services
@@ -24,10 +26,28 @@ namespace WallopEdit.Services
                 string? file = files[i];
                 if (File.Exists(file))
                 {
-                    string contents = await File.ReadAllTextAsync(file);
-                    yield return new ListedScene(i, file, contents);
+                    string sceneName = "Error";
+                    string? thumbnail = null;
+                    string? errorMessage = null;
+
+                    try
+                    {
+                        using (FileStream archiveStream = new FileStream(file, FileMode.Open))
+                        {
+                            ZipArchive archive = new ZipArchive(archiveStream);
+                            sceneName = StoredSceneProtocol.Parts.GetName(archive);
+                            thumbnail = StoredSceneProtocol.Parts.GetThumbnailFile(archive);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorMessage = ex.Message;
+                    }
+                    yield return new ListedScene(i, file, sceneName, thumbnail, errorMessage);
                 }
             }
         }
+
+
     }
 }

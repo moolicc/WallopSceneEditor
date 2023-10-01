@@ -1,4 +1,5 @@
 using WallopEdit.Models;
+using WallopEdit.SceneManagement;
 
 namespace WallopEdit
 {
@@ -9,7 +10,7 @@ namespace WallopEdit
 
         public App()
         {
-            // this.RequestedTheme = ApplicationTheme.Dark;
+             //this.RequestedTheme = ApplicationTheme.Dark;
         }
 
         protected async override void OnLaunched(LaunchActivatedEventArgs args)
@@ -58,9 +59,11 @@ namespace WallopEdit
                         settingsInstance.Load();
 
                         var storageInstance = new Services.LocalSceneService(settingsInstance.AppSettings);
+                        var engineProcInstance = new Services.LocalEngineProcessService();
 
                         services.AddSingleton<Services.ISettingsService>(settingsInstance);
                         services.AddSingleton<Services.ISceneStorageService>(storageInstance);
+                        services.AddSingleton<Services.IEngineProcessService>(engineProcInstance);
                     })
                     .UseNavigation(ReactiveViewModelMappings.ViewModelMappings, RegisterRoutes)
                 );
